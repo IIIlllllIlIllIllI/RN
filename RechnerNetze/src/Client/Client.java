@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 
 public class Client {
 	// port von pop3 ist 110
+	static private final int pop3_port=110;
 	private int port;
 	private String hostname;
 	private Socket socket;
@@ -19,33 +20,42 @@ public class Client {
 	private DataOutputStream outToServer;
 	
 	
-	public Client(int port, String hostname){
-		this.port= port;
+	public Client(){
+		this.port= pop3_port;
+	}
+	public void connect(String hostname) throws Exception {
 		this.hostname = hostname;
-	}
-	public void connection() throws Exception {
 		//Socket implementieren
-		socket = new Socket(hostname,port);
+		this.socket = new Socket(this.hostname,this.port);
 		//Informationen zu Server
-		outToServer = new DataOutputStream(socket.getOutputStream());
+		this.outToServer = new DataOutputStream(this.socket.getOutputStream());
 		//Informationen aus Server
-		inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		this.inFromServer = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 	}
-	public String getInfo() throws IOException{
-		String a;
-		a = inFromServer.readLine();
+	public void connect(String hostname,int port) throws Exception {
+		this.port=port;
+		this.hostname = hostname;
+		connect(this.hostname, this.port);
+	}
+	public String getInfo() {
+		String a="";
+		try {
+			a = this.inFromServer.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return a;
 	}
 	public void send(String message) throws IOException{
-		outToServer.writeBytes(message);
+		this.outToServer.writeBytes(message+"\r\n");
 		// flush all Info zu Server, wichtig für kleine Message!
-		outToServer.flush();
+		this.outToServer.flush();
 	}
 	public void anmelden(String name, String psw){
-		
 		try {
-			send("user"+name);
-			send("pass"+psw);
+			send("USER "+name);
+			send("PASS "+psw);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
