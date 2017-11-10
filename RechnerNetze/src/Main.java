@@ -12,6 +12,9 @@ public class Main {
 					c.connect(host);
 					c.user("...");
 					c.pass("...");
+					c.stat();
+					c.list();
+					c.retr(3);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

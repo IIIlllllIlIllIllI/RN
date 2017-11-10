@@ -100,4 +100,38 @@ public class Client {
 			System.out.println("Psw ist falsch");
 		}
 	}
+	//Anzahl von mail
+	public void stat() throws IOException{
+		String get = "";
+		get = send("STAT");
+		int anzahl = 0;
+		//get anzahl, erste word.
+		StringTokenizer st=new StringTokenizer(get," ");
+		st.nextToken();
+		anzahl = Integer.parseInt(st.nextToken());
+		System.out.println("Hat "+ anzahl + " emails.");
+	}
+	// list
+	public void list() throws IOException{
+		String Info = "";
+		Info = send("list");
+		String message="";
+		while(!".".equals(Info)){
+			message = message + Info +"\n";
+			Info = inFromServer.readLine().toString();
+		}
+		System.out.println("list:" + message);
+	}
+	// eine Email auswaehlen
+	public void retr(int index) throws IOException{
+		String Info = "";
+		Info = send("retr"+" "+index);
+		String message="";
+		while(!".".equals(Info)){
+			message = message + Info +"\n";
+			Info = inFromServer.readLine().toString();
+		}
+		System.out.println(index+"te email ist :" + message);
+		
+	}
 }
