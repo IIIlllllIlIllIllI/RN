@@ -5,10 +5,12 @@ import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.StringTokenizer;
 
 public class Client {
 	// port von pop3 ist 110
@@ -17,7 +19,8 @@ public class Client {
 	private String hostname;
 	private Socket socket;
 	private BufferedReader inFromServer;
-	private DataOutputStream outToServer;
+//	private DataOutputStream outToServer;
+	private BufferedWriter outToServer;
 	
 	
 	public Client(){
@@ -27,8 +30,10 @@ public class Client {
 		this.hostname = hostname;
 		//Socket implementieren
 		this.socket = new Socket(this.hostname,this.port);
+		System.out.println("Verbinden...");
 		//Informationen zu Server
-		this.outToServer = new DataOutputStream(this.socket.getOutputStream());
+//		this.outToServer = new DataOutputStream(this.socket.getOutputStream());
+		this.outToServer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
 		//Informationen aus Server
 		this.inFromServer = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 	}
@@ -41,24 +46,58 @@ public class Client {
 		String a="";
 		try {
 			a = this.inFromServer.readLine();
+			System.out.println("Server: "+ a);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return a;
 	}
-	public void send(String message) throws IOException{
-		this.outToServer.writeBytes(message+"\r\n");
-		// flush all Info zu Server, wichtig für kleine Message!
-		this.outToServer.flush();
+	// Hier wir nehmen das erste word -- "+OK" oder "-ERR"
+	public String getErsteInfo(String a){
+		
+		StringTokenizer str=new StringTokenizer(a," ");
+		
+		return str.nextToken();
+		
 	}
-	public void anmelden(String name, String psw){
+	public String send(String message) throws IOException{
+		this.outToServer.write((message+"\r\n"));
+		// flush all Info zu Server, wichtig für kleine Message!
+		
+		this.outToServer.flush();
+		String re = getInfo();
+		
+		return re;
+	}
+	public void close(){
 		try {
-			send("USER "+name);
-			send("PASS "+psw);
+			inFromServer.close();
+			outToServer.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		
+	}
+	public void user(String Uname) throws IOException{
+		String Info = "";
+		Info = getErsteInfo(getInfo());
+		// Richtig Verbindung
+		if(!"+OK".equals(Info)){
+			System.out.println("Server nicht ersteht ");
+		}
+		Info = getErsteInfo(send("user " + Uname));
+		
+		if(!"+OK".equals(Info)){
+			System.out.println("Username ist falsch");
+		}
+	}
+	public void pass(String pass) throws IOException{
+		String Info = "";
+		Info = getErsteInfo(send("pass " + pass));
+		if(!"+OK".equals(Info)){
+			System.out.println("Psw ist falsch");
 		}
 	}
 }
