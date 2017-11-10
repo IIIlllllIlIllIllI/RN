@@ -15,6 +15,8 @@ public class Main {
 					c.stat();
 					c.list();
 					c.retr(3);
+					c.quit();
+					c.close();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

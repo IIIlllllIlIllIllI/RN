@@ -70,10 +70,14 @@ public class Client {
 		
 		return re;
 	}
+	public void quit() throws IOException{
+		send("QUIT");
+	}
 	public void close(){
 		try {
 			inFromServer.close();
 			outToServer.close();
+			socket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
