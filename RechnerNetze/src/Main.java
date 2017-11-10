@@ -8,21 +8,6 @@ public class Main {
 		// TODO Auto-generated method stub
 				Client c = new Client(110,"pop3.126.com");
 				
-				try {
-					c.connection();
-					System.out.println(c.getInfo());
-					c.anmelden("qwertyhot@126.com", "ll");
-					System.out.println(c.getInfo());
-					
-					
-					
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			
 	}
-
 }
