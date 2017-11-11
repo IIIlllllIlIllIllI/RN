@@ -1,34 +1,33 @@
 package Server;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Server {
 	// port von pop3 ist 110
 	static private final int pop3_port = 110;
 	private int port;
 	private ServerSocket socket;
+	private ArrayList<Thread> threads;
 
 	public Server() {
 		this.port = pop3_port;
+		this.threads=new ArrayList<>();
 		createSocket();
-		Thread test=new Thread(new ServerThread(socket));
-		test.start();
-		try {
-			test.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		while(true) {
+			try {
+				threads.add(new Thread(new ServerThread(this.socket.accept())));
+				threads.get(threads.size()-1).start();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
 		}
+//		for(Thread t:threads) {
+//			t.join();
+//		}
 	}
-
 
 	public Server(int port) {
 		this.port = port;
@@ -42,7 +41,5 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
-
-
 
 }
