@@ -28,6 +28,7 @@ public class ServerThread implements Runnable {
 	public void run() {
 		this.threadId = Thread.currentThread().getId();
 		System.out.println("[" + this.threadId + "] Server thread started");
+		write("+OK connected to Server");
 		while (!this.connectionSocket.isClosed()) {
 			readInput();
 			execCmd();
@@ -179,8 +180,8 @@ public class ServerThread implements Runnable {
 			e.printStackTrace();
 		}
 		System.out.println("Received: " + this.clientSentence);
-		if(this.clientSentence==null) {
-			this.clientSentence="";
+		if (this.clientSentence == null) {
+			this.clientSentence = "";
 		}
 		return this.clientSentence;
 	}
