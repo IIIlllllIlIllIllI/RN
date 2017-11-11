@@ -1,26 +1,32 @@
-import java.io.IOException;
-
 import Client.Client;
+import Server.Server;
 
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-				String host="pop.126.com";
-				Client c = new Client();
-				try {
-					c.connect(host);
-					c.user("...");
-					c.pass("...");
-					c.stat();
-					c.list();
-					c.retr(3);
-					c.quit();
-					c.close();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
+		testServer();
+
 	}
+	private static void testServer() {
+		Server server=new Server();
+	}
+	private static void testClient() {
+		String host = "firemail.de";
+		String user = "RN2017RN@firemail.de";
+		String pwd = "pmZQWFHsxmuzAqbhaUxW";
+		Client c = new Client();
+		try {
+			c.connect(host);
+			c.user(user);
+			c.pass(pwd);
+			c.stat();
+			c.list();
+			c.retr(1);
+			c.quit();
+			c.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
