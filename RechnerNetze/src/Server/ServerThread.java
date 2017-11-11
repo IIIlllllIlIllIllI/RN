@@ -49,11 +49,11 @@ public class ServerThread implements Runnable{
 		}else if(cmd.equals("pass")) {
 			write("+OK");
 		}else if(cmd.equals("capa")) {
-			write("+OK");
+			write(capa());
 		}else if(cmd.equals("stat")) {
 			write(stat());
 		}else if(cmd.equals("top")) {
-			write("+OK");
+			write(top());
 		}else if(cmd.equals("retr")) {
 			write(retr());
 		}else if(cmd.equals("list")) {
@@ -69,6 +69,41 @@ public class ServerThread implements Runnable{
 			}
 		}
 		
+	}
+	private String capa() {
+		String ret="";
+		ret+="+OK Capability list follows";
+		ret+="\nUSER";
+		ret+="\nPASS";
+		ret+="\nCAPA";
+		ret+="\nSTAT";
+		ret+="\nTOP";
+		ret+="\nRETR";
+		ret+="\nLIST";
+		ret+="\nDELE";
+		ret+="\nQUIT";
+		ret+="\r\n.";
+		return ret;
+	}
+	private String top() {
+		int idx=-1,lines=-1;
+		if(!this.clientSentence.contains(" "))return "-ERR no param";
+		else if(this.clientSentence.split(" ").length<3)return "-ERR no param";
+		else {idx=Integer.parseInt(this.clientSentence.split(" ")[1]);
+		lines=Integer.parseInt(this.clientSentence.split(" ")[2]);
+		}
+		String ret="";
+		ret+="+OK ";
+		String msg=SampleDataBase.messages.get(idx-1);
+		String head=msg.substring(0,msg.indexOf("\n\n"));
+		String body=msg.substring(msg.indexOf("\n\n")+2);
+		ret+=head;
+		String arr[]=body.split("\n");
+		for (int i = 0; i < Math.min(lines,arr.length); i++) {
+			ret+="\n"+arr[i];
+		}
+		ret+="\r\n.";
+		return ret;
 	}
 	private String dele() {
 		int idx=-1;
