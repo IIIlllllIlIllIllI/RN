@@ -5,7 +5,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		testServer();
-
+//testClient();
 	}
 	private static void testServer() {
 		Server server=new Server();
