@@ -15,8 +15,9 @@ public class Server {
 	public Server() {
 		this.port = pop3_port;
 		this.threads=new ArrayList<>();
-		createSocket();
+		createServerSocket();
 		while(true) {
+			//startet für jede Verbindung einen neuen Thread
 			try {
 				threads.add(new Thread(new ServerThread(this.socket.accept())));
 				threads.get(threads.size()-1).start();
@@ -31,10 +32,10 @@ public class Server {
 
 	public Server(int port) {
 		this.port = port;
-		createSocket();
+		createServerSocket();
 	}
 
-	private void createSocket() {
+	private void createServerSocket() {
 		try {
 			this.socket = new ServerSocket(this.port);
 		} catch (IOException e) {

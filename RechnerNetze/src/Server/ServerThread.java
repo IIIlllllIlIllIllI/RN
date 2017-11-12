@@ -6,15 +6,21 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ServerThread implements Runnable {
 	private long threadId;
 	private Socket connectionSocket;
 	private BufferedReader inFromClient;
 	private DataOutputStream outToClient;
-	private String clientSentence, capitalizedSentence;
+	private String clientSentence;
+	//zustand
+	private boolean authorization=true,user=false,pass=false;
+	private ArrayList<Integer> marked; 
 
+	//initialiesiert Objectvariablen
 	public ServerThread(Socket serverSocket) {
+		this.marked=new ArrayList<>();
 		this.connectionSocket = serverSocket;
 		try {
 			this.inFromClient = new BufferedReader(new InputStreamReader(this.connectionSocket.getInputStream()));
@@ -29,6 +35,9 @@ public class ServerThread implements Runnable {
 		this.threadId = Thread.currentThread().getId();
 		System.out.println("[" + this.threadId + "] Server thread started");
 		write("+OK connected to Server");
+		//solange die Verbindung offen ist:
+		//Befehl auslesen
+		//Befehl bearbeiten
 		while (!this.connectionSocket.isClosed()) {
 			readInput();
 			execCmd();
@@ -38,35 +47,59 @@ public class ServerThread implements Runnable {
 	private void execCmd() {
 		String cmd;
 		if (!this.clientSentence.contains(" "))
+			//befehl hat keine parameter
 			cmd = this.clientSentence;
 		else
 			cmd = this.clientSentence.split(" ")[0];
 		cmd = cmd.toLowerCase();
-		if (cmd.equals("user")) {
+		if (this.authorization&&cmd.equals("user")) {
 			write("+OK");
-		} else if (cmd.equals("pass")) {
+			this.user=true;
+			this.authorization=!(this.user&&this.pass);
+		} else if (this.authorization&&cmd.equals("pass")) {
 			write("+OK");
+			this.pass=true;
+			this.authorization=!(this.user&&this.pass);
 		} else if (cmd.equals("capa")) {
 			write(capa());
-		} else if (cmd.equals("stat")) {
+		} else if (!this.authorization&&cmd.equals("stat")) {
 			write(stat());
-		} else if (cmd.equals("top")) {
+		} else if (!this.authorization&&cmd.equals("top")) {
 			write(top());
-		} else if (cmd.equals("retr")) {
+		} else if (!this.authorization&&cmd.equals("retr")) {
 			write(retr());
-		} else if (cmd.equals("list")) {
+		} else if (!this.authorization&&cmd.equals("list")) {
 			write(list());
-		} else if (cmd.equals("dele")) {
+		} else if (!this.authorization&&cmd.equals("dele")) {
 			write(dele());
+		} else if (!this.authorization&&cmd.equals("noop")) {
+			write(noop());
+		} else if (!this.authorization&&cmd.equals("rset")) {
+			write(rset());
 		} else if (cmd.equals("quit")) {
 			write("+OK closing...");
 			try {
+				for(int i:marked) {
+					SampleDataBase.messages.remove(i - 1);
+				}				
 				this.connectionSocket.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}else {
+			write("-ERR");
 		}
 
+	}
+
+	//Alle Markierungen werden gelöscht
+	private String rset() {
+		marked.clear();
+		return "+OK";
+	}
+
+	private String noop() {
+		return "+OK";
 	}
 
 	private String capa() {
@@ -85,6 +118,7 @@ public class ServerThread implements Runnable {
 		return ret;
 	}
 
+	//head und anfang der nachricht wird ausgegeben
 	private String top() {
 		int idx = -1, lines = -1;
 		if (!this.clientSentence.contains(" "))
@@ -109,6 +143,7 @@ public class ServerThread implements Runnable {
 		return ret;
 	}
 
+	//markiert Nachricht zum Löschen
 	private String dele() {
 		int idx = -1;
 		if (!this.clientSentence.contains(" "))
@@ -116,11 +151,13 @@ public class ServerThread implements Runnable {
 		else
 			idx = Integer.parseInt(this.clientSentence.split(" ")[1]);
 		String ret = "";
-		SampleDataBase.messages.remove(idx - 1);
-		ret += "+OK message " + idx + " deleted";
+		if(!marked.contains(idx))
+		marked.add(idx);
+		ret += "+OK message " + idx + " marked for deletion";
 		return ret;
 	}
 
+	//Listet alle Mails auf
 	private String list() {
 		String ret = stat();
 		ret += "\n";
@@ -135,6 +172,7 @@ public class ServerThread implements Runnable {
 		return ret;
 	}
 
+	//Gibt eine Mail zurück
 	private String retr() {
 		int idx = -1;
 		if (!this.clientSentence.contains(" "))
@@ -149,6 +187,7 @@ public class ServerThread implements Runnable {
 		return ret;
 	}
 
+	//Status mit Anzahl Mails und Größe
 	private String stat() {
 		String ret = "";
 		ret += "+OK ";
@@ -161,11 +200,11 @@ public class ServerThread implements Runnable {
 		return ret;
 	}
 
+	//sendet String zum Client
 	private void write(String string) {
-		this.capitalizedSentence = string;
-		System.out.println("Writing: " + this.capitalizedSentence);
+		System.out.println("Writing: " + string);
 		try {
-			this.outToClient.writeBytes(this.capitalizedSentence + "\r\n");
+			this.outToClient.writeBytes(string + "\r\n");
 			this.outToClient.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -173,6 +212,7 @@ public class ServerThread implements Runnable {
 
 	}
 
+	//Liest Clientinput
 	private String readInput() {
 		try {
 			this.clientSentence = this.inFromClient.readLine();
