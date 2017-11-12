@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.function.UnaryOperator;
 
 public class ServerThread implements Runnable {
 	private long threadId;
@@ -81,6 +82,11 @@ public class ServerThread implements Runnable {
 			try {
 				for(int i:marked) {
 					SampleDataBase.messages.remove(i - 1);
+					for(int j:marked) {
+						if(j>i) {
+							marked.set(marked.indexOf(j),j-1);
+						}
+					}
 				}				
 				this.connectionSocket.close();
 			} catch (IOException e) {
