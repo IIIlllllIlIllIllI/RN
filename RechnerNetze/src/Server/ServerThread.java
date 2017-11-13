@@ -78,24 +78,30 @@ public class ServerThread implements Runnable {
 		} else if (!this.authorization&&cmd.equals("rset")) {
 			write(rset());
 		} else if (cmd.equals("quit")) {
-			write("+OK closing...");
-			try {
-				for(int i:marked) {
-					SampleDataBase.messages.remove(i - 1);
-					for(int j:marked) {
-						if(j>i) {
-							marked.set(marked.indexOf(j),j-1);
-						}
-					}
-				}				
-				this.connectionSocket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			quit();
 		}else {
 			write("-ERR");
 		}
 
+	}
+
+	private void quit() {
+		write("+OK closing...");
+		for(int i:marked) {
+			SampleDataBase.messages.remove(i - 1);
+			for(int j:marked) {
+				if(j>i) {
+					marked.set(marked.indexOf(j),j-1);
+				}
+			}
+		}	
+		try {
+			this.inFromClient.close();
+			this.outToClient.close();
+			this.connectionSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	//Alle Markierungen werden gelöscht
