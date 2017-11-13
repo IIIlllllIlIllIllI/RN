@@ -111,15 +111,15 @@ public class ServerThread implements Runnable {
 	private String capa() {
 		String ret = "";
 		ret += "+OK Capability list follows";
-		ret += "\nUSER";
-		ret += "\nPASS";
-		ret += "\nCAPA";
-		ret += "\nSTAT";
-		ret += "\nTOP";
-		ret += "\nRETR";
-		ret += "\nLIST";
-		ret += "\nDELE";
-		ret += "\nQUIT";
+		ret += "\r\nUSER";
+		ret += "\r\nPASS";
+		ret += "\r\nCAPA";
+		ret += "\r\nSTAT";
+		ret += "\r\nTOP";
+		ret += "\r\nRETR";
+		ret += "\r\nLIST";
+		ret += "\r\nDELE";
+		ret += "\r\nQUIT";
 		ret += "\r\n.";
 		return ret;
 	}
@@ -143,7 +143,7 @@ public class ServerThread implements Runnable {
 		ret += head;
 		String arr[] = body.split("\n");
 		for (int i = 0; i < Math.min(lines, arr.length); i++) {
-			ret += "\n" + arr[i];
+			ret += "\r\n" + arr[i];
 		}
 		ret += "\r\n.";
 		return ret;
@@ -166,12 +166,12 @@ public class ServerThread implements Runnable {
 	//Listet alle Mails auf
 	private String list() {
 		String ret = stat();
-		ret += "\n";
+		ret += "\r\n";
 		int idx = 1;
 		for (String msg : SampleDataBase.messages) {
 			ret += "" + idx++;
 			ret += " " + msg.getBytes().length;
-			ret += "\n";
+			ret += "\r\n";
 		}
 		ret = ret.substring(0, ret.length() - 2);
 		ret += "\r\n.";
