@@ -2,42 +2,38 @@ package Server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Server {
-	// port von pop3 ist 110
-	static private final int pop3_port = 110;
-	private int port;
-	private ServerSocket socket;
+	// port von http ist 80
+	static private final int http_port = 80;
+	private ServerSocket serverSocketTCP;
 	private ArrayList<Thread> threads;
+	Path documentRoot;
 
-	public Server() {
-		this.port = pop3_port;
+	private void startAcceptingConnections() {
 		this.threads=new ArrayList<>();
-		createServerSocket();
 		while(true) {
 			//startet für jede Verbindung einen neuen Thread
 			try {
-				threads.add(new Thread(new ServerThread(this.socket.accept())));
+				threads.add(new Thread(new ServerThread(this.serverSocketTCP.accept(),documentRoot)));
 				threads.get(threads.size()-1).start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}			
 		}
-//		for(Thread t:threads) {
-//			t.join();
-//		}
 	}
 
-	public Server(int port) {
-		this.port = port;
-		createServerSocket();
+	public Server(Path documentRoot,int port) {
+		this.documentRoot=documentRoot;
+		createServerSocket(port);
+		startAcceptingConnections();
 	}
 
-	private void createServerSocket() {
+	private void createServerSocket(int port) {
 		try {
-			this.socket = new ServerSocket(this.port);
+			this.serverSocketTCP = new ServerSocket(port);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
