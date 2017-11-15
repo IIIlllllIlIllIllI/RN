@@ -15,13 +15,15 @@ public class Server {
 	private void startAcceptingConnections() {
 		this.threads=new ArrayList<>();
 		while(true) {
-			//startet für jede Verbindung einen neuen Thread
+			//startet fï¿½r jede Verbindung einen neuen Thread
 			try {
-				threads.add(new Thread(new ServerThread(this.serverSocketTCP.accept(),documentRoot)));
+				Thread severThread = new Thread(new ServerThread(this.serverSocketTCP.accept(),documentRoot));
+				threads.add(severThread);
 				threads.get(threads.size()-1).start();
 			} catch (IOException e) {
 				e.printStackTrace();
-			}			
+			} 	
+			
 		}
 	}
 

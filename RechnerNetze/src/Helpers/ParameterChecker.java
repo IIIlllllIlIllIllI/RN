@@ -30,7 +30,9 @@ public class ParameterChecker {
 			throw new InvalidParameterException("kein Parameter vorhanden");
 		}
 		else {
+			
 			path=new File(args[2]).toPath();
+			System.out.println(path.toString());
 			if(!(new File(path.toString()).exists())) {
 				throw new InvalidParameterException("Pfad ist nicht Vorhanden");
 			}

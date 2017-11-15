@@ -4,7 +4,8 @@ import Server.Server;
 public class Main {
 
 	public static void main(String[] args) {
-		ParameterChecker parameterChecker=new ParameterChecker(args);
+		String a[] = {"aa","5678", "/Users/wenboda/Desktop/5Semester/Rechnernetze/documentRoot"};
+		ParameterChecker parameterChecker=new ParameterChecker(a);
 		Server server=new Server(parameterChecker.getDocumentRoot(), parameterChecker.getPort());
 		
 	}
