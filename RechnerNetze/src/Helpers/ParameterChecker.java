@@ -7,7 +7,7 @@ import java.security.InvalidParameterException;
 
 public class ParameterChecker {
 	private int port;
-	private Path documentRoot;
+	private String documentRoot;
 	public ParameterChecker(String args[]) {
 		this.port=getPort(args);
 		this.documentRoot=getPath(args);
@@ -18,22 +18,22 @@ public class ParameterChecker {
 	public void setPort(int port) {
 		this.port = port;
 	}
-	public Path getDocumentRoot() {
+	public String getDocumentRoot() {
 		return documentRoot;
 	}
-	public void setDocumentRoot(Path documentRoot) {
+	public void setDocumentRoot(String documentRoot) {
 		this.documentRoot = documentRoot;
 	}
-	private Path getPath(String[] args) {
-		Path path=new File("./").toPath();
+	private String getPath(String[] args) {
+		String path="./";
 		if(args.length<2) {
 			throw new InvalidParameterException("kein Parameter vorhanden");
 		}
 		else {
 			
-			path=new File(args[2]).toPath();
-			System.out.println(path.toString());
-			if(!(new File(path.toString()).exists())) {
+			path=args[2];
+			System.out.println(path);
+			if(!(new File(path).exists())) {
 				throw new InvalidParameterException("Pfad ist nicht Vorhanden");
 			}
 			

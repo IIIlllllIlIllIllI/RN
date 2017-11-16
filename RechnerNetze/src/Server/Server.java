@@ -10,7 +10,7 @@ public class Server {
 	static private final int http_port = 80;
 	private ServerSocket serverSocketTCP;
 	private ArrayList<Thread> threads;
-	Path documentRoot;
+	String documentRoot;
 
 	private void startAcceptingConnections() {
 		this.threads=new ArrayList<>();
@@ -27,7 +27,7 @@ public class Server {
 		}
 	}
 
-	public Server(Path documentRoot,int port) {
+	public Server(String documentRoot,int port) {
 		this.documentRoot=documentRoot;
 		createServerSocket(port);
 		startAcceptingConnections();
