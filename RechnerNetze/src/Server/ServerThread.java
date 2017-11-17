@@ -67,19 +67,16 @@ public class ServerThread implements Runnable {
 
 	private void doget(File e) throws IOException {
 		System.out.println(e.getAbsolutePath());
-		FileInputStream Datain = new FileInputStream(e);
-		byte[] buf = new byte[Datain.available()];
-		Datain.read(buf);
+		
+		BufferedReader Datain =new BufferedReader(new InputStreamReader(new FileInputStream(e)));
+		String file="",nextLine=Datain.readLine();
+		while(nextLine!=null) {
+			file+=nextLine+"\r\n";
+			nextLine=Datain.readLine();
+		}
 		Datain.close();
-		buf=("HTTP/0.9 200 successful \r\nContent-Type: text/html\r\n\r\n<html>\r\n" + 
-				"	<head><title>Test</title></head>\r\n" + 
-				"	<body>\r\n" + 
-				"		<img src=\"images/logo.gif\" />\r\n" + 
-				"		<img src=\"images/TechnikErleben.png\" />\r\n" + 
-				"		<p>It works...!</p>\r\n" + 
-				"	</body>\r\n" + 
-				"</html>\r\n").getBytes();
-		out.write(buf);
+		Message msg= new Message(file);		
+		out.write(msg.getBytes());
 		out.flush();
 	}
 
