@@ -42,16 +42,18 @@ public class ServerThread implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("1 Client Connected");
-		write("Connected to Severs");
+		System.out.println("Client Connected to thread " + Thread.currentThread().getId());
+		// write("Connected to Severs");
 		// solange die Verbindung offen ist:
 		// Befehl auslesen
 		// Befehl bearbeiten
-		int timeout=15*1000;
+		int timeout = 15 * 1000;
 		while (!this.connectionSocket.isClosed()) {
-			if(timeout<=0) {
-				 write("timeout: no request");
-				 quit();
+			if (timeout <= 0) {
+				// write("timeout: no request");
+				System.out.println("Timeout thread " + Thread.currentThread().getId());
+				quit();
+				continue;
 			}
 			try {
 				if (this.inFromClient.ready()) {
@@ -61,7 +63,7 @@ public class ServerThread implements Runnable {
 					try {
 						// versuche 100 ms zu schalafen
 						Thread.sleep(100);
-						timeout-=100;
+						timeout -= 100;
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -70,15 +72,23 @@ public class ServerThread implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("Closing thread " + Thread.currentThread().getId());
 	}
 
 	private void doget(File e) throws IOException {
-		write("HTTP/0.1  200 OK");
+		//write("HTTP/0.9 200 OK");
 		System.out.println(e.getAbsolutePath());
 		this.Datain = new FileInputStream(e);
 		byte[] buf = new byte[Datain.available()];
 		Datain.read(buf);
+//		buf=("<html>\r\n" + 
+//				"	<head><title>Test</title></head>\r\n" + 
+//				"	<body>\r\n" +  
+//				"		<p>It works...!</p>\r\n" + 
+//				"	</body>\r\n" + 
+//				"</html>\r\n").getBytes();
 		out.write(buf);
+		out.flush();
 	}
 
 	private void quit() {
@@ -154,7 +164,8 @@ public class ServerThread implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		write("Closing Connection");
+
+		// write("Closing Connection");
 		quit();
 	}
 
