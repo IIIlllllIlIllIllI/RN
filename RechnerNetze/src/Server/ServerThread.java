@@ -1,28 +1,20 @@
 package Server;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.nio.file.Path;
 
 public class ServerThread implements Runnable {
 	private static final String GET = "GET";
 	private static final String INDEXFILE = "index.html";
 	private String request;
-	private FileInputStream Datain;
 	private OutputStream out;
 	private Socket connectionSocket;
 	private BufferedReader inFromClient;
-	private BufferedWriter outToClient;
 	private String documentRoot;
 
 	// initialiesiert Objectvariablen
@@ -32,7 +24,6 @@ public class ServerThread implements Runnable {
 		try {
 			this.inFromClient = new BufferedReader(new InputStreamReader(this.connectionSocket.getInputStream()));
 			this.out = this.connectionSocket.getOutputStream();
-			this.outToClient = new BufferedWriter(new OutputStreamWriter(out));
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -50,7 +41,6 @@ public class ServerThread implements Runnable {
 		int timeout = 15 * 1000;
 		while (!this.connectionSocket.isClosed()) {
 			if (timeout <= 0) {
-				// write("timeout: no request");
 				System.out.println("Timeout thread " + Thread.currentThread().getId());
 				quit();
 				continue;
@@ -76,45 +66,31 @@ public class ServerThread implements Runnable {
 	}
 
 	private void doget(File e) throws IOException {
-		//write("HTTP/0.9 200 OK");
 		System.out.println(e.getAbsolutePath());
-		this.Datain = new FileInputStream(e);
+		FileInputStream Datain = new FileInputStream(e);
 		byte[] buf = new byte[Datain.available()];
 		Datain.read(buf);
-//		buf=("<html>\r\n" + 
-//				"	<head><title>Test</title></head>\r\n" + 
-//				"	<body>\r\n" +  
-//				"		<p>It works...!</p>\r\n" + 
-//				"	</body>\r\n" + 
-//				"</html>\r\n").getBytes();
+		Datain.close();
+		buf=("HTTP/0.9 200 successful \r\nContent-Type: text/html\r\n\r\n<html>\r\n" + 
+				"	<head><title>Test</title></head>\r\n" + 
+				"	<body>\r\n" + 
+				"		<img src=\"images/logo.gif\" />\r\n" + 
+				"		<img src=\"images/TechnikErleben.png\" />\r\n" + 
+				"		<p>It works...!</p>\r\n" + 
+				"	</body>\r\n" + 
+				"</html>\r\n").getBytes();
 		out.write(buf);
 		out.flush();
 	}
 
 	private void quit() {
-
 		try {
 			this.inFromClient.close();
 			this.out.close();
-			this.outToClient.close();
 			this.connectionSocket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	// sendet String zum Client
-	private void write(String string) {
-		if (!this.connectionSocket.isClosed()) {
-			try {
-				System.out.println("Writing: " + string);
-				this.outToClient.write(string + "\r\n");
-				this.outToClient.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
 	}
 
 	// Liest Clientinput
@@ -140,7 +116,6 @@ public class ServerThread implements Runnable {
 			file = new File(documentRoot + a[1]);
 
 		} catch (ArrayIndexOutOfBoundsException A) {
-			write("HTTP/0.1 400 Bad Request");
 			quit();
 			return;
 		}
@@ -157,15 +132,10 @@ public class ServerThread implements Runnable {
 			}
 			if (cmd.equals(GET) && file.exists() && !file.isDirectory()) {
 				doget(file);
-			} else {
-				write("HTTP/0.1 400 Bad Request");
-				quit();
-			}
+			} 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		// write("Closing Connection");
 		quit();
 	}
 
