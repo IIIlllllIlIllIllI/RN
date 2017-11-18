@@ -15,6 +15,6 @@ public String getValue() {
 	return this.value;
 }
 public String toString() {
-	return "";
+	return this.getName()+": "+this.getValue()+"\r\n";
 }
 }

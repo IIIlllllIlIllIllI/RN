@@ -75,7 +75,11 @@ public class ServerThread implements Runnable {
 			nextLine=Datain.readLine();
 		}
 		Datain.close();
-		Message msg= new Message(file);		
+		String fe="";
+		String[] split=e.getAbsolutePath().split(".");
+		if(split.length>0)
+		fe=split[split.length-1];
+		Message msg= new Message(file,fe);		
 		out.write(msg.getBytes());
 		out.flush();
 	}
