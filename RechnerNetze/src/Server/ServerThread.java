@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import Logger.Logger;
 
 public class ServerThread implements Runnable {
 	private static final String GET = "GET";
@@ -16,9 +17,12 @@ public class ServerThread implements Runnable {
 	private Socket connectionSocket;
 	private BufferedReader inFromClient;
 	private String documentRoot;
+	private Logger logger;
+	
 
 	// initialiesiert Objectvariablen
-	public ServerThread(Socket clientSocket, String documentRoot) {
+	public ServerThread(Socket clientSocket, String documentRoot, Logger logger) {
+		this.logger=logger;
 		this.documentRoot = documentRoot;
 		this.connectionSocket = clientSocket;
 		try {
@@ -48,6 +52,7 @@ public class ServerThread implements Runnable {
 			try {
 				if (this.inFromClient.ready()) {
 					this.request = readInput();
+
 					handleRequest();
 				} else {
 					try {
@@ -67,7 +72,7 @@ public class ServerThread implements Runnable {
 
 	private void doget(File e) throws IOException {
 		System.out.println(e.getAbsolutePath());
-		
+		this.logger.addEntry("GET "+e.getAbsolutePath().replace(this.documentRoot, ""), this.connectionSocket.getRemoteSocketAddress());
 		BufferedReader Datain =new BufferedReader(new InputStreamReader(new FileInputStream(e)));
 		String file="",nextLine=Datain.readLine();
 		while(nextLine!=null) {
