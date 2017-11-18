@@ -28,8 +28,8 @@ public class Message {
 			this.addHeader("Content-Type", "text/plain");
 		}
 		
-		this.addHeader("Content-Length", ""+this.body.length());
-		this.addHeader("Connection" ,"Closed");
+//		this.addHeader("Content-Length", ""+this.body.length());
+//		this.addHeader("Connection" ,"Closed");
 	}
 
 	public byte[] getBytes() {

@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import Logger.Logger;
 
 public class ServerThread implements Runnable {
@@ -71,8 +75,13 @@ public class ServerThread implements Runnable {
 	}
 
 	private void doget(File e) throws IOException {
-		System.out.println(e.getAbsolutePath());
+		String pa=e.getAbsolutePath();
+		System.out.println(pa);
 		this.logger.addEntry("GET "+e.getAbsolutePath().replace(this.documentRoot, ""), this.connectionSocket.getRemoteSocketAddress());
+		if(pa.matches("(.*/)*.+\\.(png|jpg|gif|bmp|jpeg|ico|PNG|JPG|GIF|BMP|ICO)$")){
+        	out.write(Files.readAllBytes(Paths.get(pa)));
+        } else {
+      
 		BufferedReader Datain =new BufferedReader(new InputStreamReader(new FileInputStream(e)));
 		String file="",nextLine=Datain.readLine();
 		while(nextLine!=null) {
@@ -81,12 +90,13 @@ public class ServerThread implements Runnable {
 		}
 		Datain.close();
 		String fe="";
-		String[] split=e.getAbsolutePath().split(".");
+		String[] split=pa.split("\\.");
 		if(split.length>0)
 		fe=split[split.length-1];
 		Message msg= new Message(file,fe);		
 		out.write(msg.getBytes());
 		out.flush();
+        }
 	}
 
 	private void quit() {
