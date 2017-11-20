@@ -5,11 +5,12 @@ public class StatusLine {
 	private String reason;
 	private int statusCode;
 
-	public StatusLine(ProtocolVersion protocolVersion,String reason,int statusCode) {
-		this.protocolVersion=protocolVersion;
-		this.reason=reason;
-		this.statusCode=statusCode;
+	public StatusLine(ProtocolVersion protocolVersion, String reason, int statusCode) {
+		this.protocolVersion = protocolVersion;
+		this.reason = reason;
+		this.statusCode = statusCode;
 	}
+
 	public ProtocolVersion getProtocolVersion() {
 		return this.protocolVersion;
 	}
@@ -21,7 +22,8 @@ public class StatusLine {
 	public int getStatusCode() {
 		return this.statusCode;
 	}
+
 	public String toString() {
-		return this.getProtocolVersion()+" "+this.getStatusCode()+" "+this.getReasonPhrase()+" \r\n";
+		return this.getProtocolVersion() + " " + this.getStatusCode() + " " + this.getReasonPhrase() + " \r\n";
 	}
 }
