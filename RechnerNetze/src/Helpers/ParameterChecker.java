@@ -34,7 +34,6 @@ public class ParameterChecker {
 			throw new InvalidParameterException("kein/zu wenige Parameter vorhanden");
 		} else {
 			path = args[1];
-			System.out.println(path);
 			if (path.contains(" ")) {
 				throw new InvalidParameterException("Der Pfad darf keine LEER-Zeichen enthalten");
 			}

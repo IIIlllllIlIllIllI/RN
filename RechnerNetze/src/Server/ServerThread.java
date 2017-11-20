@@ -85,7 +85,6 @@ public class ServerThread implements Runnable {
 
 	private void doget(String cmd, File e) throws IOException {
 		String pa = e.getAbsolutePath();
-		System.out.println(pa);
 		this.logger.addEntry(cmd + " " + e.getAbsolutePath().replace(this.documentRoot, ""),
 				this.connectionSocket.getRemoteSocketAddress());
 		String fe = getFileExtension(pa);
@@ -123,7 +122,6 @@ public class ServerThread implements Runnable {
 		try {
 			// alles nach dem 2ten leerzeichen wird ignoriert
 			cmd = a[0];
-			System.out.println("a[0]= " + a[0] + "\na[1]= " + a[1]);
 			file = new File(documentRoot + a[1]);
 		} catch (ArrayIndexOutOfBoundsException A) {
 			quit();
