@@ -9,7 +9,20 @@ class Host : public cSimpleModule{
 Define_Module(Host);
 void Host::initialize()
 {
+    if (strcmp("client", getName()) == 0) {
+        cMessage *msg = new cMessage("testMsg");
+        send(msg, "out");
+    }
+    else{
+
+    }
 }
 void Host::handleMessage(cMessage *msg)
 {
+    if (strcmp("client", getName()) == 0) {
+        send(msg, "out");
+    }
+    else{
+        send(msg, "out");
+    }
 }
