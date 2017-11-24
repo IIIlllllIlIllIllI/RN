@@ -1,5 +1,7 @@
 #include <string.h>
 #include <omnetpp.h>
+#include "Request_m.h"
+#include "Response_m.h"
 using namespace omnetpp;
 
 class Host : public cSimpleModule{
@@ -10,8 +12,8 @@ Define_Module(Host);
 void Host::initialize()
 {
     if (strcmp("client", getName()) == 0) {
-        cMessage *msg = new cMessage("testMsg");
-        send(msg, "out");
+        Request *req = new Request("req");
+        send(req, "out");
     }
     else{
 
@@ -20,9 +22,12 @@ void Host::initialize()
 void Host::handleMessage(cMessage *msg)
 {
     if (strcmp("client", getName()) == 0) {
-        send(msg, "out");
+        Response *resp=check_and_cast<Response *>(msg);
+        send(resp, "out");
     }
     else{
-        send(msg, "out");
+        Request *req=check_and_cast<Request *>(msg);
+        Response *resp = new Response("resp");
+        send(resp, "out");
     }
 }
