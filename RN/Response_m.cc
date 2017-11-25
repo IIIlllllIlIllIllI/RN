@@ -241,12 +241,12 @@ void Response::setStatuscode(unsigned int k, char statuscode)
     this->statuscode[k] = statuscode;
 }
 
-int Response::getAddress() const
+uint32_t Response::getAddress() const
 {
     return this->address;
 }
 
-void Response::setAddress(int address)
+void Response::setAddress(uint32_t address)
 {
     this->address = address;
 }
@@ -368,7 +368,7 @@ const char *ResponseDescriptor::getFieldTypeString(int field) const
     }
     static const char *fieldTypeStrings[] = {
         "char",
-        "int",
+        "uint32_t",
     };
     return (field>=0 && field<2) ? fieldTypeStrings[field] : nullptr;
 }
@@ -439,7 +439,7 @@ std::string ResponseDescriptor::getFieldValueAsString(void *object, int field, i
     Response *pp = (Response *)object; (void)pp;
     switch (field) {
         case 0: return long2string(pp->getStatuscode(i));
-        case 1: return long2string(pp->getAddress());
+        case 1: return ulong2string(pp->getAddress());
         default: return "";
     }
 }
@@ -455,7 +455,7 @@ bool ResponseDescriptor::setFieldValueAsString(void *object, int field, int i, c
     Response *pp = (Response *)object; (void)pp;
     switch (field) {
         case 0: pp->setStatuscode(i,string2long(value)); return true;
-        case 1: pp->setAddress(string2long(value)); return true;
+        case 1: pp->setAddress(string2ulong(value)); return true;
         default: return false;
     }
 }

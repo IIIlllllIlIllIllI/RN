@@ -24,7 +24,7 @@
  * packet Response
  * {
  *     char statuscode[8];
- *     int address;
+ *     uint32_t address;
  * }
  * </pre>
  */
@@ -32,7 +32,7 @@ class Response : public ::omnetpp::cPacket
 {
   protected:
     char statuscode[8];
-    int address;
+    uint32_t address;
 
   private:
     void copy(const Response& other);
@@ -54,8 +54,8 @@ class Response : public ::omnetpp::cPacket
     virtual unsigned int getStatuscodeArraySize() const;
     virtual char getStatuscode(unsigned int k) const;
     virtual void setStatuscode(unsigned int k, char statuscode);
-    virtual int getAddress() const;
-    virtual void setAddress(int address);
+    virtual uint32_t getAddress() const;
+    virtual void setAddress(uint32_t address);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const Response& obj) {obj.parsimPack(b);}

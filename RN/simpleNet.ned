@@ -14,7 +14,10 @@
 //
 simple Host
 {
-    @display("i=device/lan");
+    parameters:
+        int intReq = default(1);
+        int n = default(1);
+        @display("i=device/lan");
     gates:
         input in;
         output out;

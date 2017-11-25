@@ -23,14 +23,14 @@
  * <pre>
  * packet Request
  * {
- *     char hostname[64];
+ *     char hostname[51];
  * }
  * </pre>
  */
 class Request : public ::omnetpp::cPacket
 {
   protected:
-    char hostname[64];
+    char hostname[51];
 
   private:
     void copy(const Request& other);

@@ -181,7 +181,7 @@ Register_Class(Request)
 
 Request::Request(const char *name, short kind) : ::omnetpp::cPacket(name,kind)
 {
-    for (unsigned int i=0; i<64; i++)
+    for (unsigned int i=0; i<51; i++)
         this->hostname[i] = 0;
 }
 
@@ -204,36 +204,36 @@ Request& Request::operator=(const Request& other)
 
 void Request::copy(const Request& other)
 {
-    for (unsigned int i=0; i<64; i++)
+    for (unsigned int i=0; i<51; i++)
         this->hostname[i] = other.hostname[i];
 }
 
 void Request::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::omnetpp::cPacket::parsimPack(b);
-    doParsimArrayPacking(b,this->hostname,64);
+    doParsimArrayPacking(b,this->hostname,51);
 }
 
 void Request::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::omnetpp::cPacket::parsimUnpack(b);
-    doParsimArrayUnpacking(b,this->hostname,64);
+    doParsimArrayUnpacking(b,this->hostname,51);
 }
 
 unsigned int Request::getHostnameArraySize() const
 {
-    return 64;
+    return 51;
 }
 
 char Request::getHostname(unsigned int k) const
 {
-    if (k>=64) throw omnetpp::cRuntimeError("Array of size 64 indexed by %lu", (unsigned long)k);
+    if (k>=51) throw omnetpp::cRuntimeError("Array of size 51 indexed by %lu", (unsigned long)k);
     return this->hostname[k];
 }
 
 void Request::setHostname(unsigned int k, char hostname)
 {
-    if (k>=64) throw omnetpp::cRuntimeError("Array of size 64 indexed by %lu", (unsigned long)k);
+    if (k>=51) throw omnetpp::cRuntimeError("Array of size 51 indexed by %lu", (unsigned long)k);
     this->hostname[k] = hostname;
 }
 
@@ -391,7 +391,7 @@ int RequestDescriptor::getFieldArraySize(void *object, int field) const
     }
     Request *pp = (Request *)object; (void)pp;
     switch (field) {
-        case 0: return 64;
+        case 0: return 51;
         default: return 0;
     }
 }

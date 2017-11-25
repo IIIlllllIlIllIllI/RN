@@ -1,3 +1,3 @@
 packet Request {
-    char hostname[64];
+    char hostname[51];
 }
