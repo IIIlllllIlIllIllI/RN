@@ -19,10 +19,8 @@ void Host::initialize() {
             cMessage* event = new cMessage("event");
             SimTime x = exponential(intReq);
             z = z + x;
-            scheduleAt(simTime()+z, event);
+            scheduleAt(simTime() + z, event);
         }
-    } else {
-
     }
 }
 void Host::handleMessage(cMessage *msg) {
@@ -36,18 +34,23 @@ void Host::handleMessage(cMessage *msg) {
             send(req, "out");
         } else {
             Response *resp = check_and_cast<Response *>(msg);
+            EV << "GOT RESPONSE: " << resp->getAddress() << "\n";
+            delete (resp);
         }
     } else {
         if (msg->isSelfMessage()) {
             Response *resp = new Response("resp");
             if (uniform(0, 1) > 0.9) {
-                bubble("blubb");
+                EV << "DNS failed\n";
+                bubble("ERROR");
                 resp->setStatuscode(0, 'E');
                 resp->setStatuscode(1, 'R');
                 resp->setStatuscode(2, 'R');
                 resp->setStatuscode(3, 0);
-                resp->setAddress(0xFFFFFFFF);
+                //vom übungsblatt 7 mal F (0xFFFFFFF)
+                resp->setAddress(0xFFFFFFF);
             } else {
+                bubble("OK");
                 resp->setStatuscode(0, 'O');
                 resp->setStatuscode(1, 'K');
                 resp->setStatuscode(2, 0);
@@ -55,10 +58,16 @@ void Host::handleMessage(cMessage *msg) {
             }
             send(resp, "out");
         } else {
-            //Request *req=check_and_cast<Request *>(msg);
+            Request *req = check_and_cast<Request *>(msg);
+            EV << "GOT REQUEST: ";
+            for (int var = 0; var < req->getHostnameArraySize(); var++) {
+                EV << req->getHostname(var);
+            }
+            EV << "\n";
+            delete (req);
             cMessage* event = new cMessage("event");
             SimTime x = normal(1, 0.2);
-            scheduleAt(simTime()+x, event);
+            scheduleAt(simTime() + x, event);
         }
 
     }
@@ -66,7 +75,7 @@ void Host::handleMessage(cMessage *msg) {
 char* Host::getRandomString() {
     char* s = new char[51];
     char alphanum[] =
-            "0123456789" "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz";
+            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     for (int i = 0; i < 51; i++) {
         s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
     }
