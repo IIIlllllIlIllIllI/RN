@@ -202,16 +202,29 @@ HTTPServerMsg& HTTPServerMsg::operator=(const HTTPServerMsg& other)
 
 void HTTPServerMsg::copy(const HTTPServerMsg& other)
 {
+    this->response = other.response;
 }
 
 void HTTPServerMsg::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::omnetpp::cPacket::parsimPack(b);
+    doParsimPacking(b,this->response);
 }
 
 void HTTPServerMsg::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::omnetpp::cPacket::parsimUnpack(b);
+    doParsimUnpacking(b,this->response);
+}
+
+const char * HTTPServerMsg::getResponse() const
+{
+    return this->response.c_str();
+}
+
+void HTTPServerMsg::setResponse(const char * response)
+{
+    this->response = response;
 }
 
 class HTTPServerMsgDescriptor : public omnetpp::cClassDescriptor
@@ -279,7 +292,7 @@ const char *HTTPServerMsgDescriptor::getProperty(const char *propertyname) const
 int HTTPServerMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 0+basedesc->getFieldCount() : 0;
+    return basedesc ? 1+basedesc->getFieldCount() : 1;
 }
 
 unsigned int HTTPServerMsgDescriptor::getFieldTypeFlags(int field) const
@@ -290,7 +303,10 @@ unsigned int HTTPServerMsgDescriptor::getFieldTypeFlags(int field) const
             return basedesc->getFieldTypeFlags(field);
         field -= basedesc->getFieldCount();
     }
-    return 0;
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+    };
+    return (field>=0 && field<1) ? fieldTypeFlags[field] : 0;
 }
 
 const char *HTTPServerMsgDescriptor::getFieldName(int field) const
@@ -301,12 +317,17 @@ const char *HTTPServerMsgDescriptor::getFieldName(int field) const
             return basedesc->getFieldName(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    static const char *fieldNames[] = {
+        "response",
+    };
+    return (field>=0 && field<1) ? fieldNames[field] : nullptr;
 }
 
 int HTTPServerMsgDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount() : 0;
+    if (fieldName[0]=='r' && strcmp(fieldName, "response")==0) return base+0;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -318,7 +339,10 @@ const char *HTTPServerMsgDescriptor::getFieldTypeString(int field) const
             return basedesc->getFieldTypeString(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    static const char *fieldTypeStrings[] = {
+        "string",
+    };
+    return (field>=0 && field<1) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **HTTPServerMsgDescriptor::getFieldPropertyNames(int field) const
@@ -385,6 +409,7 @@ std::string HTTPServerMsgDescriptor::getFieldValueAsString(void *object, int fie
     }
     HTTPServerMsg *pp = (HTTPServerMsg *)object; (void)pp;
     switch (field) {
+        case 0: return oppstring2string(pp->getResponse());
         default: return "";
     }
 }
@@ -399,6 +424,7 @@ bool HTTPServerMsgDescriptor::setFieldValueAsString(void *object, int field, int
     }
     HTTPServerMsg *pp = (HTTPServerMsg *)object; (void)pp;
     switch (field) {
+        case 0: pp->setResponse((value)); return true;
         default: return false;
     }
 }
@@ -411,7 +437,9 @@ const char *HTTPServerMsgDescriptor::getFieldStructName(int field) const
             return basedesc->getFieldStructName(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    switch (field) {
+        default: return nullptr;
+    };
 }
 
 void *HTTPServerMsgDescriptor::getFieldStructValuePointer(void *object, int field, int i) const

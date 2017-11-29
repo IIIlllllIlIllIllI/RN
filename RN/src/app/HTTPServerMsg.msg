@@ -18,5 +18,5 @@
 // 621.800 (17W) Computer Networks and Network Programming
 
 packet HTTPServerMsg {
-    // TODO define HTTPServerMsg comprising at least a response field
+    string response;
 }

@@ -29,6 +29,8 @@ class HTTPServer : public cSimpleModule
   protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
+    virtual void doGet(std::string resource);
+
 };
 
 #endif

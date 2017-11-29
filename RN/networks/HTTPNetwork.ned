@@ -25,12 +25,19 @@ import src.app.HTTPServer;
 network HTTPNetwork
 {
     parameters:
-        // TODO add global parameters (if needed)
-        
+    // TODO add global parameters (if needed)
+    types:
+        channel Channel extends ned.DelayChannel
+        {
+            delay = 100ms;
+        }
+
     submodules:
-        // TODO add submodules comprising a HTTPClient and HTTPServer
-        
+        client: HTTPClient;
+        server: HTTPServer;
     connections:
         // TODO connect HTTPClient and HTTPServer
+        client.toLowerLayer --> Channel --> server.fromLowerLayer;
+        server.toLowerLayer --> Channel --> client.fromLowerLayer;
 
 }

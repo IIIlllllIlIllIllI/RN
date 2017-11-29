@@ -23,12 +23,14 @@
  * <pre>
  * packet HTTPServerMsg
  * {
+ *     string response;
  * }
  * </pre>
  */
 class HTTPServerMsg : public ::omnetpp::cPacket
 {
   protected:
+    ::omnetpp::opp_string response;
 
   private:
     void copy(const HTTPServerMsg& other);
@@ -47,6 +49,8 @@ class HTTPServerMsg : public ::omnetpp::cPacket
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
     // field getter/setter methods
+    virtual const char * getResponse() const;
+    virtual void setResponse(const char * response);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const HTTPServerMsg& obj) {obj.parsimPack(b);}

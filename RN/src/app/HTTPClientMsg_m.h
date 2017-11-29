@@ -23,12 +23,16 @@
  * <pre>
  * packet HTTPClientMsg
  * {
+ *     string method;
+ *     string resource;
  * }
  * </pre>
  */
 class HTTPClientMsg : public ::omnetpp::cPacket
 {
   protected:
+    ::omnetpp::opp_string method;
+    ::omnetpp::opp_string resource;
 
   private:
     void copy(const HTTPClientMsg& other);
@@ -47,6 +51,10 @@ class HTTPClientMsg : public ::omnetpp::cPacket
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
     // field getter/setter methods
+    virtual const char * getMethod() const;
+    virtual void setMethod(const char * method);
+    virtual const char * getResource() const;
+    virtual void setResource(const char * resource);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const HTTPClientMsg& obj) {obj.parsimPack(b);}

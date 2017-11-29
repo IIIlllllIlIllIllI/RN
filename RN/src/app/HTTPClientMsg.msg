@@ -18,5 +18,6 @@
 // 621.800 (17W) Computer Networks and Network Programming
 
 packet HTTPClientMsg {
-    // TODO define HTTPClientMsg comprising at least a method and resource field
+    string method;
+    string resource;
 }

@@ -21,14 +21,33 @@
 #include "HTTPClientMsg_m.h"
 #include "HTTPServerMsg_m.h"
 
-Define_Module(HTTPServer);
+Define_Module (HTTPServer);
 
-void HTTPServer::initialize()
-{
+void HTTPServer::initialize() {
     // TODO implement initialize
 }
 
-void HTTPServer::handleMessage(cMessage *msg)
-{
-    // TODO implement handleMessage
+void HTTPServer::handleMessage(cMessage *msg) {
+    HTTPClientMsg* req = check_and_cast<HTTPClientMsg *>(msg);
+    if (std::strcmp(req->getMethod(), "GET") == 0) {
+        doGet(req->getResource());
+    }
 }
+void HTTPServer::doGet(std::string resource) {
+    EV << resource;
+    HTTPServerMsg * resp = new HTTPServerMsg("response");
+    if (resource.compare("/test/\r\n") == 0) {
+        resp->setResponse("<html>\n\t<head><title>Test</title></head>\n\t<body>\n\t\t<img src=\"logo.gif\" />\n\t\t<h1>Welcome</h1>\n\t\t<img src=\"TechnikErleben.png\" />\n\t</body>\n</html>\n");
+    }
+    else if(resource.compare("/test/logo.gif\r\n") == 0){
+        resp->setResponse("logo.gif");
+    }
+    else if(resource.compare("/test/TechnikErleben.png\r\n") == 0){
+        resp->setResponse("TechnikErleben.png");
+    }
+    else{
+        resp->setResponse("Couldnt find File");
+    }
+    send(resp,"toLowerLayer");
+}
+

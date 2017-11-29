@@ -21,12 +21,26 @@
 #include "HTTPClientMsg_m.h"
 #include "HTTPServerMsg_m.h"
 
-Define_Module(HTTPClient);
+Define_Module (HTTPClient);
 
 void HTTPClient::initialize() {
     // TODO implement initialize
+    HTTPClientMsg * req = new HTTPClientMsg("test1");
+    req->setMethod("GET");
+    req->setResource("/test/\r\n");
+    send(req, "toLowerLayer");
+    req = new HTTPClientMsg("test2");
+    req->setMethod("GET");
+    req->setResource("/test/logo.gif\r\n");
+    send(req, "toLowerLayer");
+    req = new HTTPClientMsg("test3");
+    req->setMethod("GET");
+    req->setResource("/test/TechnikErleben.png\r\n");
+    send(req, "toLowerLayer");
 }
 
 void HTTPClient::handleMessage(cMessage *msg) {
-    // TODO implement handleMessage
+    HTTPServerMsg* resp = check_and_cast<HTTPServerMsg *>(msg);
+    EV<<resp->getResponse();
+    delete(resp);
 }

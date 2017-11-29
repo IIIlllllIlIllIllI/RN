@@ -202,16 +202,42 @@ HTTPClientMsg& HTTPClientMsg::operator=(const HTTPClientMsg& other)
 
 void HTTPClientMsg::copy(const HTTPClientMsg& other)
 {
+    this->method = other.method;
+    this->resource = other.resource;
 }
 
 void HTTPClientMsg::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::omnetpp::cPacket::parsimPack(b);
+    doParsimPacking(b,this->method);
+    doParsimPacking(b,this->resource);
 }
 
 void HTTPClientMsg::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::omnetpp::cPacket::parsimUnpack(b);
+    doParsimUnpacking(b,this->method);
+    doParsimUnpacking(b,this->resource);
+}
+
+const char * HTTPClientMsg::getMethod() const
+{
+    return this->method.c_str();
+}
+
+void HTTPClientMsg::setMethod(const char * method)
+{
+    this->method = method;
+}
+
+const char * HTTPClientMsg::getResource() const
+{
+    return this->resource.c_str();
+}
+
+void HTTPClientMsg::setResource(const char * resource)
+{
+    this->resource = resource;
 }
 
 class HTTPClientMsgDescriptor : public omnetpp::cClassDescriptor
@@ -279,7 +305,7 @@ const char *HTTPClientMsgDescriptor::getProperty(const char *propertyname) const
 int HTTPClientMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 0+basedesc->getFieldCount() : 0;
+    return basedesc ? 2+basedesc->getFieldCount() : 2;
 }
 
 unsigned int HTTPClientMsgDescriptor::getFieldTypeFlags(int field) const
@@ -290,7 +316,11 @@ unsigned int HTTPClientMsgDescriptor::getFieldTypeFlags(int field) const
             return basedesc->getFieldTypeFlags(field);
         field -= basedesc->getFieldCount();
     }
-    return 0;
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+    };
+    return (field>=0 && field<2) ? fieldTypeFlags[field] : 0;
 }
 
 const char *HTTPClientMsgDescriptor::getFieldName(int field) const
@@ -301,12 +331,19 @@ const char *HTTPClientMsgDescriptor::getFieldName(int field) const
             return basedesc->getFieldName(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    static const char *fieldNames[] = {
+        "method",
+        "resource",
+    };
+    return (field>=0 && field<2) ? fieldNames[field] : nullptr;
 }
 
 int HTTPClientMsgDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount() : 0;
+    if (fieldName[0]=='m' && strcmp(fieldName, "method")==0) return base+0;
+    if (fieldName[0]=='r' && strcmp(fieldName, "resource")==0) return base+1;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -318,7 +355,11 @@ const char *HTTPClientMsgDescriptor::getFieldTypeString(int field) const
             return basedesc->getFieldTypeString(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    static const char *fieldTypeStrings[] = {
+        "string",
+        "string",
+    };
+    return (field>=0 && field<2) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **HTTPClientMsgDescriptor::getFieldPropertyNames(int field) const
@@ -385,6 +426,8 @@ std::string HTTPClientMsgDescriptor::getFieldValueAsString(void *object, int fie
     }
     HTTPClientMsg *pp = (HTTPClientMsg *)object; (void)pp;
     switch (field) {
+        case 0: return oppstring2string(pp->getMethod());
+        case 1: return oppstring2string(pp->getResource());
         default: return "";
     }
 }
@@ -399,6 +442,8 @@ bool HTTPClientMsgDescriptor::setFieldValueAsString(void *object, int field, int
     }
     HTTPClientMsg *pp = (HTTPClientMsg *)object; (void)pp;
     switch (field) {
+        case 0: pp->setMethod((value)); return true;
+        case 1: pp->setResource((value)); return true;
         default: return false;
     }
 }
@@ -411,7 +456,9 @@ const char *HTTPClientMsgDescriptor::getFieldStructName(int field) const
             return basedesc->getFieldStructName(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    switch (field) {
+        default: return nullptr;
+    };
 }
 
 void *HTTPClientMsgDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
