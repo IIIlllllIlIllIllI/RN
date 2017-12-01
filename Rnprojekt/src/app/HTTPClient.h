@@ -26,6 +26,12 @@ using namespace omnetpp;
 
 class HTTPClient : public cSimpleModule
 {
+private:
+    int counter = 0;
+    cMessage *startEvent;
+//public:
+//    HTTPClient();
+//    virtual ~HTTPClient();
 protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
