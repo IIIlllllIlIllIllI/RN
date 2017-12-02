@@ -46,7 +46,7 @@ void HTTPServer::doGet(std::string resource) {
         resp->setResponse("TechnikErleben.png");
     }
     else{
-        resp->setResponse("Couldnt find File");
+        resp->setResponse("Couldnt find file");
     }
     send(resp,"toLowerLayer");
 }

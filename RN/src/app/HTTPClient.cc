@@ -24,61 +24,42 @@
 Define_Module (HTTPClient);
 
 
-//
-//HTTPClient::HTTPClient(){
-//    startEvent = nullptr;
-//}
-//HTTPClient::~HTTPClient(){
-//    cancelAndDelete(startEvent);
-//}
+
 
 void HTTPClient::initialize() {
-    // TODO implement initialize
-//    HTTPClientMsg * req = new HTTPClientMsg("test1");
-//    req->setMethod("GET");
-//    req->setResource("/test/\r\n");
-//    send(req, "toLowerLayer");
-//    req = new HTTPClientMsg("test2");
-//    req->setMethod("GET");
-//    req->setResource("/test/logo.gif\r\n");
-//    send(req, "toLowerLayer");
-//    req = new HTTPClientMsg("test3");
-//    req->setMethod("GET");
-//    req->setResource("/test/TechnikErleben.png\r\n");
-//    send(req, "toLowerLayer");
     startEvent = new cMessage("Event");
-    scheduleAt(1, startEvent);
+    scheduleAt(0, startEvent);
 }
 
 void HTTPClient::handleMessage(cMessage *msg) {
-//    HTTPServerMsg* resp;
+    HTTPServerMsg* resp;
     HTTPClientMsg* req;
     if(msg->isSelfMessage()){
-        req = new HTTPClientMsg("test1");
+        req = new HTTPClientMsg("get1");
         req->setMethod("GET");
         req->setResource("/test/\r\n");
         send(req, "toLowerLayer");
     }else{
-//        resp = check_and_cast<HTTPServerMsg *>(msg);
+        resp = check_and_cast<HTTPServerMsg *>(msg);
         switch(counter)
         {
         case 1:
-            req = new HTTPClientMsg("test2");
+            req = new HTTPClientMsg("get2");
             req->setMethod("GET");
             req->setResource("/test/logo.gif\r\n");
             send(req, "toLowerLayer");
             break;
         case 2:
-            req = new HTTPClientMsg("test3");
+            req = new HTTPClientMsg("get3");
             req->setMethod("GET");
             req->setResource("/test/TechnikErleben.png\r\n");
             send(req, "toLowerLayer");
             break;
+        default:
+            break;
         }
+        EV<<resp->getResponse()<<"\n";
     }
 
-//    EV<<resp->getResponse();
-
-    delete(msg);
     counter++;
 }

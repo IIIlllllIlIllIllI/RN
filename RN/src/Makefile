@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for aau-HTTP
+# OMNeT++/OMNEST Makefile for RN
 #
 # This file was generated with the command:
 #  opp_makemake -f --deep
 #
 
 # Name of target to be created (-o option)
-TARGET = aau-HTTP$(D)$(EXE_SUFFIX)
+TARGET = RN$(D)$(EXE_SUFFIX)
 TARGET_DIR = .
 
 # User interface (uncomment one) (-u option)
