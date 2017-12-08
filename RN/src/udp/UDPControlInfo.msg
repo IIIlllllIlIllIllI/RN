@@ -17,14 +17,21 @@
 //
 // 621.800 (17W) Computer Networks and Network Programming
 
-package src.app;
+cplusplus {{
+#include "../3rdParty/IPv4Address.h"
+#include "../3rdParty/IPv6Address.h"
+}}
 
-simple HTTPClient
+class noncobject inet::IPv4Address;
+class noncobject inet::IPv6Address;
+
+message UDPControlInfo
 {
-    parameters:
-        int srcPort = default(6666);
-        int destPort = default(80);
-    gates:
-        input fromLowerLayer;
-        output toLowerLayer;
+    inet::IPv4Address srcIPv4;	// source IPv4 address
+    inet::IPv6Address srcIPv6;	// source IPv6 address
+    int srcPort;					// source port
+
+    inet::IPv4Address destIPv4;	// destination IPv4 address
+    inet::IPv6Address destIPv6;	// destination IPv6 address
+    int destPort;				// destination port
 }

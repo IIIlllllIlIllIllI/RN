@@ -21,6 +21,9 @@ package src.app;
 
 simple HTTPServer
 {
+    parameters:
+        int srcPort = default(80);
+        int destPort = default(66666);
     gates:
         input fromLowerLayer;
         output toLowerLayer;

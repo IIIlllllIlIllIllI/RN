@@ -17,27 +17,47 @@
 //
 // 621.800 (17W) Computer Networks and Network Programming
 
-#ifndef __AAU_HTTP_LSG_HTTPSERVER_H_
-#define __AAU_HTTP_LSG_HTTPSERVER_H_
-
 #include <omnetpp.h>
+#include "UDP.h"
+#include "UDPSegment_m.h"
+#include "UDPControlInfo_m.h"
 #include "../3rdParty/IPv4Address.h"
 #include "../3rdParty/IPv6Address.h"
 
-using namespace omnetpp;
+Define_Module(UDP);
 
-class HTTPServer : public cSimpleModule
+void UDP::initialize()
 {
-  protected:
-    virtual void initialize();
-    virtual void doGet(std::string resource);
-    virtual void handleMessage(cMessage *msg);
-    inet::IPv4Address *serverIPv4;
-    inet::IPv4Address *clientIPv4;
-    inet::IPv6Address *serverIPv6;
-    inet::IPv6Address *clientIPv6;
-    int srcPort;
-    int destPort;
-};
+    // TODO implement as needed (or leave empty)
+}
 
-#endif
+void UDP::handleMessage(cMessage *msg)
+{
+	if (msg->arrivedOn("fromUpperLayer")) {
+		// comes from application
+		this->handleAppMessage((cPacket*)msg);
+	}
+
+	else if (msg->arrivedOn("fromLowerLayer")) {
+		//comes from lower layer
+		this->handleUDPSegment((cPacket*)msg);
+	}
+}
+
+void UDP::handleAppMessage(cPacket *msg)
+{
+	// TODO implement handleAppMessage
+    // 1. cast to http msg
+    // 2. remove controlinfo
+    // 3. create udp segment and use controlinfo to set UDP fields
+    // 4. encapsulate http msg and send to lower layer
+}
+
+void UDP::handleUDPSegment(cPacket *msg) {
+	// TODO implement handleUDPSegment
+    // 1. cast to udp segment
+    // 2. create controlinfo and use UDP fields to set values
+    // 3. decapsulate http msg
+    // 4. attach controlinfo and sent to upper layer
+}
+

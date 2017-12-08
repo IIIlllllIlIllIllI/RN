@@ -38,13 +38,18 @@ OBJS = \
     $O/3rdParty/MACAddress.o \
     $O/app/HTTPClient.o \
     $O/app/HTTPServer.o \
+    $O/udp/UDP.o \
     $O/app/HTTPClientMsg_m.o \
-    $O/app/HTTPServerMsg_m.o
+    $O/app/HTTPServerMsg_m.o \
+    $O/udp/UDPControlInfo_m.o \
+    $O/udp/UDPSegment_m.o
 
 # Message files
 MSGFILES = \
     app/HTTPClientMsg.msg \
-    app/HTTPServerMsg.msg
+    app/HTTPServerMsg.msg \
+    udp/UDPControlInfo.msg \
+    udp/UDPSegment.msg
 
 # SM files
 SMFILES =

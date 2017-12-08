@@ -21,6 +21,8 @@
 #define __AAU_HTTP_LSG_HTTPCLIENT_H_
 
 #include <omnetpp.h>
+#include "../3rdParty/IPv4Address.h"
+#include "../3rdParty/IPv6Address.h"
 
 using namespace omnetpp;
 
@@ -28,13 +30,16 @@ class HTTPClient : public cSimpleModule
 {
 private:
     int counter = 0;
-    cMessage *startEvent;
-//public:
-//    HTTPClient();
-//    virtual ~HTTPClient();
+cMessage *startEvent;
 protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
+    inet::IPv4Address *serverIPv4;
+    inet::IPv4Address *clientIPv4;
+    inet::IPv6Address *serverIPv6;
+    inet::IPv6Address *clientIPv6;
+    int srcPort;
+    int destPort;
 };
 
 #endif

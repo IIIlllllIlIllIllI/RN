@@ -17,14 +17,21 @@
 //
 // 621.800 (17W) Computer Networks and Network Programming
 
-package src.app;
+#ifndef UDP_H_
+#define UDP_H_
 
-simple HTTPClient
+#include "../3rdParty/IPv4Address.h"
+#include "../3rdParty/IPv6Address.h"
+
+using namespace omnetpp;
+
+class UDP : public cSimpleModule
 {
-    parameters:
-        int srcPort = default(6666);
-        int destPort = default(80);
-    gates:
-        input fromLowerLayer;
-        output toLowerLayer;
-}
+protected:
+	virtual void initialize();
+	virtual void handleMessage(cMessage *msg);
+	virtual void handleAppMessage(cPacket *msg);
+	virtual void handleUDPSegment(cPacket *msg);
+};
+
+#endif /* UDP_H_ */

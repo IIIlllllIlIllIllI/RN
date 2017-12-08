@@ -20,8 +20,9 @@
 #include "HTTPServer.h"
 #include "HTTPClientMsg_m.h"
 #include "HTTPServerMsg_m.h"
+#include "../udp/UDPControlInfo_m.h"
 
-Define_Module (HTTPServer);
+Define_Module(HTTPServer);
 
 void HTTPServer::initialize() {
     // TODO implement initialize
@@ -50,4 +51,3 @@ void HTTPServer::doGet(std::string resource) {
     }
     send(resp,"toLowerLayer");
 }
-

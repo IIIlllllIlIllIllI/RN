@@ -20,11 +20,9 @@
 #include "HTTPClient.h"
 #include "HTTPClientMsg_m.h"
 #include "HTTPServerMsg_m.h"
+#include "../udp/UDPControlInfo_m.h"
 
-Define_Module (HTTPClient);
-
-
-
+Define_Module(HTTPClient);
 
 void HTTPClient::initialize() {
     startEvent = new cMessage("Event");

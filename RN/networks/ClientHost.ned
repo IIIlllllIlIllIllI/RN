@@ -17,14 +17,21 @@
 //
 // 621.800 (17W) Computer Networks and Network Programming
 
-package src.app;
+package networks;
 
-simple HTTPClient
+import src.app.HTTPClient;
+import src.udp.UDP;
+
+module ClientHost
 {
-    parameters:
-        int srcPort = default(6666);
-        int destPort = default(80);
     gates:
-        input fromLowerLayer;
-        output toLowerLayer;
+        input inNet;
+        output outNet;
+
+    submodules:
+        // TODO add submodules for HTTPClient and UDP
+
+    connections:
+        // TODO connect HTTPClient with UPD and gates of ClientHost
 }
+

@@ -17,14 +17,13 @@
 //
 // 621.800 (17W) Computer Networks and Network Programming
 
-package src.app;
+package src.udp;
 
-simple HTTPClient
+simple UDP
 {
-    parameters:
-        int srcPort = default(6666);
-        int destPort = default(80);
-    gates:
-        input fromLowerLayer;
-        output toLowerLayer;
+	gates:
+		input fromUpperLayer;
+		output toUpperLayer;
+		input fromLowerLayer;
+		output toLowerLayer;
 }

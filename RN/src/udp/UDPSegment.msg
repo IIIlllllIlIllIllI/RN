@@ -17,14 +17,7 @@
 //
 // 621.800 (17W) Computer Networks and Network Programming
 
-package src.app;
-
-simple HTTPClient
+packet UDPSegment
 {
-    parameters:
-        int srcPort = default(6666);
-        int destPort = default(80);
-    gates:
-        input fromLowerLayer;
-        output toLowerLayer;
+    // TODO add message definition here, adding source and destination port
 }
