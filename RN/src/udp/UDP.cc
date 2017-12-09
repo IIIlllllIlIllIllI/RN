@@ -50,9 +50,19 @@ void UDP::handleAppMessage(cPacket *msg)
 {
 	// TODO implement handleAppMessage
     // 1. cast to http msg
+    msg=msg->decapsulate();
+    cPacket *cp=new cPacket();
     if(true){
         HTTPClientMsg* req = check_and_cast<HTTPClientMsg *>(msg);
+        int destPort=req->getControlInfo().getDestPort();
+        int srcPort=req->getControlInfo().getSrcPort();
         req->setControlInfo(NULL);
+        UDPSegment* useg=new UDPSegment();
+        useg->setSrcPort(srcPort);
+        useg->setDestPort(destPort);
+//        useg->setMsg(*req);
+//        delete(req);
+        cp->encapsulate(useg);
     }
     else
         HTTPServerMsg* resp = check_and_cast<HTTPServerMsg *>(msg);
@@ -60,6 +70,7 @@ void UDP::handleAppMessage(cPacket *msg)
     // 3. create udp segment and use controlinfo to set UDP fields
     // 4. encapsulate http msg and send to lower layer
     EV<<"GOT smt\n";
+    send(cp,"toLowerLayer");
 }
 
 void UDP::handleUDPSegment(cPacket *msg) {

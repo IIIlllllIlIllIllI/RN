@@ -64,8 +64,8 @@ void HTTPClient::handleMessage(cMessage *msg) {
 cPacket* HTTPClient::encapsulate(HTTPClientMsg* msg){
     cPacket* cP=new cPacket();
     UDPControlInfo* cntl=new UDPControlInfo();
-    cntl->setSrcPort(111);
-    cntl->setDestPort(112);
+    cntl->setSrcPort(this->srcPort);
+    cntl->setDestPort(this->destPort);
     msg->setControlInfo(*cntl);
     cP->encapsulate((cPacket*)msg);
     return cP;
