@@ -23,12 +23,16 @@
  * <pre>
  * packet UDPSegment
  * {
+ *     int srcPort;
+ *     int destPort;
  * }
  * </pre>
  */
 class UDPSegment : public ::omnetpp::cPacket
 {
   protected:
+    int srcPort;
+    int destPort;
 
   private:
     void copy(const UDPSegment& other);
@@ -47,6 +51,10 @@ class UDPSegment : public ::omnetpp::cPacket
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
     // field getter/setter methods
+    virtual int getSrcPort() const;
+    virtual void setSrcPort(int srcPort);
+    virtual int getDestPort() const;
+    virtual void setDestPort(int destPort);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const UDPSegment& obj) {obj.parsimPack(b);}

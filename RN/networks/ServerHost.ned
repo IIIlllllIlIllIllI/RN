@@ -29,11 +29,12 @@ module ServerHost
         output outNet;
 
     submodules:
-        // TODO add submodules for HTTPServer and UDP
-
+        server: HTTPServer;
+        udp: UDP;
     connections:
-        // TODO connect HTTPServer with UPD and gates of ServerHost
-
-
+        inNet --> udp.fromLowerLayer;
+        server.toLowerLayer --> udp.fromUpperLayer;
+        udp.toUpperLayer --> server.fromLowerLayer;
+        outNet <-- udp.toLowerLayer;
 }
 

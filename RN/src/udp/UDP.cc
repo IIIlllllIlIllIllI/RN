@@ -23,6 +23,8 @@
 #include "UDPControlInfo_m.h"
 #include "../3rdParty/IPv4Address.h"
 #include "../3rdParty/IPv6Address.h"
+#include "../app/HTTPClientMsg_m.h"
+#include "../app/HTTPServerMsg_m.h"
 
 Define_Module(UDP);
 
@@ -48,9 +50,16 @@ void UDP::handleAppMessage(cPacket *msg)
 {
 	// TODO implement handleAppMessage
     // 1. cast to http msg
+    if(true){
+        HTTPClientMsg* req = check_and_cast<HTTPClientMsg *>(msg);
+        req->setControlInfo(NULL);
+    }
+    else
+        HTTPServerMsg* resp = check_and_cast<HTTPServerMsg *>(msg);
     // 2. remove controlinfo
     // 3. create udp segment and use controlinfo to set UDP fields
     // 4. encapsulate http msg and send to lower layer
+    EV<<"GOT smt\n";
 }
 
 void UDP::handleUDPSegment(cPacket *msg) {

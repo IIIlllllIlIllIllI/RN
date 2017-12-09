@@ -181,6 +181,8 @@ Register_Class(UDPSegment)
 
 UDPSegment::UDPSegment(const char *name, short kind) : ::omnetpp::cPacket(name,kind)
 {
+    this->srcPort = 0;
+    this->destPort = 0;
 }
 
 UDPSegment::UDPSegment(const UDPSegment& other) : ::omnetpp::cPacket(other)
@@ -202,16 +204,42 @@ UDPSegment& UDPSegment::operator=(const UDPSegment& other)
 
 void UDPSegment::copy(const UDPSegment& other)
 {
+    this->srcPort = other.srcPort;
+    this->destPort = other.destPort;
 }
 
 void UDPSegment::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::omnetpp::cPacket::parsimPack(b);
+    doParsimPacking(b,this->srcPort);
+    doParsimPacking(b,this->destPort);
 }
 
 void UDPSegment::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::omnetpp::cPacket::parsimUnpack(b);
+    doParsimUnpacking(b,this->srcPort);
+    doParsimUnpacking(b,this->destPort);
+}
+
+int UDPSegment::getSrcPort() const
+{
+    return this->srcPort;
+}
+
+void UDPSegment::setSrcPort(int srcPort)
+{
+    this->srcPort = srcPort;
+}
+
+int UDPSegment::getDestPort() const
+{
+    return this->destPort;
+}
+
+void UDPSegment::setDestPort(int destPort)
+{
+    this->destPort = destPort;
 }
 
 class UDPSegmentDescriptor : public omnetpp::cClassDescriptor
@@ -279,7 +307,7 @@ const char *UDPSegmentDescriptor::getProperty(const char *propertyname) const
 int UDPSegmentDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 0+basedesc->getFieldCount() : 0;
+    return basedesc ? 2+basedesc->getFieldCount() : 2;
 }
 
 unsigned int UDPSegmentDescriptor::getFieldTypeFlags(int field) const
@@ -290,7 +318,11 @@ unsigned int UDPSegmentDescriptor::getFieldTypeFlags(int field) const
             return basedesc->getFieldTypeFlags(field);
         field -= basedesc->getFieldCount();
     }
-    return 0;
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+    };
+    return (field>=0 && field<2) ? fieldTypeFlags[field] : 0;
 }
 
 const char *UDPSegmentDescriptor::getFieldName(int field) const
@@ -301,12 +333,19 @@ const char *UDPSegmentDescriptor::getFieldName(int field) const
             return basedesc->getFieldName(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    static const char *fieldNames[] = {
+        "srcPort",
+        "destPort",
+    };
+    return (field>=0 && field<2) ? fieldNames[field] : nullptr;
 }
 
 int UDPSegmentDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount() : 0;
+    if (fieldName[0]=='s' && strcmp(fieldName, "srcPort")==0) return base+0;
+    if (fieldName[0]=='d' && strcmp(fieldName, "destPort")==0) return base+1;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -318,7 +357,11 @@ const char *UDPSegmentDescriptor::getFieldTypeString(int field) const
             return basedesc->getFieldTypeString(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    static const char *fieldTypeStrings[] = {
+        "int",
+        "int",
+    };
+    return (field>=0 && field<2) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **UDPSegmentDescriptor::getFieldPropertyNames(int field) const
@@ -385,6 +428,8 @@ std::string UDPSegmentDescriptor::getFieldValueAsString(void *object, int field,
     }
     UDPSegment *pp = (UDPSegment *)object; (void)pp;
     switch (field) {
+        case 0: return long2string(pp->getSrcPort());
+        case 1: return long2string(pp->getDestPort());
         default: return "";
     }
 }
@@ -399,6 +444,8 @@ bool UDPSegmentDescriptor::setFieldValueAsString(void *object, int field, int i,
     }
     UDPSegment *pp = (UDPSegment *)object; (void)pp;
     switch (field) {
+        case 0: pp->setSrcPort(string2long(value)); return true;
+        case 1: pp->setDestPort(string2long(value)); return true;
         default: return false;
     }
 }
@@ -411,7 +458,9 @@ const char *UDPSegmentDescriptor::getFieldStructName(int field) const
             return basedesc->getFieldStructName(field);
         field -= basedesc->getFieldCount();
     }
-    return nullptr;
+    switch (field) {
+        default: return nullptr;
+    };
 }
 
 void *UDPSegmentDescriptor::getFieldStructValuePointer(void *object, int field, int i) const

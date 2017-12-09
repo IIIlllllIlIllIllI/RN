@@ -18,13 +18,18 @@
 
 
 
+// cplusplus {{
+#include "../udp/UDPControlInfo_m.h"
+// }}
+
 /**
- * Class generated from <tt>app/HTTPClientMsg.msg:20</tt> by nedtool.
+ * Class generated from <tt>app/HTTPClientMsg.msg:23</tt> by nedtool.
  * <pre>
  * packet HTTPClientMsg
  * {
  *     string method;
  *     string resource;
+ *     UDPControlInfo ControlInfo;
  * }
  * </pre>
  */
@@ -33,6 +38,7 @@ class HTTPClientMsg : public ::omnetpp::cPacket
   protected:
     ::omnetpp::opp_string method;
     ::omnetpp::opp_string resource;
+    UDPControlInfo ControlInfo;
 
   private:
     void copy(const HTTPClientMsg& other);
@@ -55,6 +61,9 @@ class HTTPClientMsg : public ::omnetpp::cPacket
     virtual void setMethod(const char * method);
     virtual const char * getResource() const;
     virtual void setResource(const char * resource);
+    virtual UDPControlInfo& getControlInfo();
+    virtual const UDPControlInfo& getControlInfo() const {return const_cast<HTTPClientMsg*>(this)->getControlInfo();}
+    virtual void setControlInfo(const UDPControlInfo& ControlInfo);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const HTTPClientMsg& obj) {obj.parsimPack(b);}

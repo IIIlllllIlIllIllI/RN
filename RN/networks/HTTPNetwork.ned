@@ -19,8 +19,9 @@
 
 package networks;
 
-import src.app.HTTPClient;
-import src.app.HTTPServer;
+import networks.ClientHost;
+import networks.ServerHost;
+
 
 network HTTPNetwork
 {
@@ -31,13 +32,10 @@ network HTTPNetwork
         {
             delay = 100ms;
         }
-
     submodules:
-        client: HTTPClient;
-        server: HTTPServer;
+        client: ClientHost;
+        server: ServerHost;
     connections:
-        // TODO connect HTTPClient and HTTPServer
-        client.toLowerLayer --> Channel --> server.fromLowerLayer;
-        server.toLowerLayer --> Channel --> client.fromLowerLayer;
-
+		client.outNet --> Channel --> server.inNet;
+		server.outNet --> Channel --> client.inNet;
 }

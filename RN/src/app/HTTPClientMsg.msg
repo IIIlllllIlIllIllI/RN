@@ -16,8 +16,12 @@
 //          christian.timmerer@itec.aau.at / christian.timmerer@bitmovin.com
 //
 // 621.800 (17W) Computer Networks and Network Programming
-
+cplusplus {{
+#include "../udp/UDPControlInfo_m.h"
+}}
+class noncobject UDPControlInfo;
 packet HTTPClientMsg {
     string method;
     string resource;
+    UDPControlInfo ControlInfo;
 }

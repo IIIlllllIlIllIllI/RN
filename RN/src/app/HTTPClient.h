@@ -23,6 +23,7 @@
 #include <omnetpp.h>
 #include "../3rdParty/IPv4Address.h"
 #include "../3rdParty/IPv6Address.h"
+#include "HTTPClientMsg_m.h"
 
 using namespace omnetpp;
 
@@ -34,6 +35,7 @@ cMessage *startEvent;
 protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
+    virtual cPacket* encapsulate(HTTPClientMsg* msg);
     inet::IPv4Address *serverIPv4;
     inet::IPv4Address *clientIPv4;
     inet::IPv6Address *serverIPv6;

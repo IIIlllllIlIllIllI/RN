@@ -19,5 +19,6 @@
 
 packet UDPSegment
 {
-    // TODO add message definition here, adding source and destination port
+   int srcPort;
+   int destPort;
 }

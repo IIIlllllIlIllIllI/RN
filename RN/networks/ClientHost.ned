@@ -29,9 +29,12 @@ module ClientHost
         output outNet;
 
     submodules:
-        // TODO add submodules for HTTPClient and UDP
-
+        client: HTTPClient;
+        udp: UDP;
     connections:
-        // TODO connect HTTPClient with UPD and gates of ClientHost
+        inNet --> udp.fromLowerLayer;
+        client.toLowerLayer --> udp.fromUpperLayer;
+        udp.toUpperLayer --> client.fromLowerLayer;
+        outNet <-- udp.toLowerLayer;
 }
 

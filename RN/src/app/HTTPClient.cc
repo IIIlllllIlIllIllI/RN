@@ -26,7 +26,7 @@ Define_Module(HTTPClient);
 
 void HTTPClient::initialize() {
     startEvent = new cMessage("Event");
-    scheduleAt(0, startEvent);
+    scheduleAt(simTime()+1, startEvent);
 }
 
 void HTTPClient::handleMessage(cMessage *msg) {
@@ -36,7 +36,7 @@ void HTTPClient::handleMessage(cMessage *msg) {
         req = new HTTPClientMsg("get1");
         req->setMethod("GET");
         req->setResource("/test/\r\n");
-        send(req, "toLowerLayer");
+        send(encapsulate(req), "toLowerLayer");
     }else{
         resp = check_and_cast<HTTPServerMsg *>(msg);
         switch(counter)
@@ -45,13 +45,13 @@ void HTTPClient::handleMessage(cMessage *msg) {
             req = new HTTPClientMsg("get2");
             req->setMethod("GET");
             req->setResource("/test/logo.gif\r\n");
-            send(req, "toLowerLayer");
+            send(encapsulate(req), "toLowerLayer");
             break;
         case 2:
             req = new HTTPClientMsg("get3");
             req->setMethod("GET");
             req->setResource("/test/TechnikErleben.png\r\n");
-            send(req, "toLowerLayer");
+            send(encapsulate(req), "toLowerLayer");
             break;
         default:
             break;
@@ -60,4 +60,13 @@ void HTTPClient::handleMessage(cMessage *msg) {
     }
 
     counter++;
+}
+cPacket* HTTPClient::encapsulate(HTTPClientMsg* msg){
+    cPacket* cP=new cPacket();
+    UDPControlInfo* cntl=new UDPControlInfo();
+    cntl->setSrcPort(111);
+    cntl->setDestPort(112);
+    msg->setControlInfo(*cntl);
+    cP->encapsulate((cPacket*)msg);
+    return cP;
 }
