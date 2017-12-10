@@ -50,34 +50,32 @@ void UDP::handleAppMessage(cPacket *msg)
 {
 	// TODO implement handleAppMessage
     // 1. cast to http msg
-    msg=msg->decapsulate();
-    cPacket *cp=new cPacket();
-    if(true){
-        HTTPClientMsg* req = check_and_cast<HTTPClientMsg *>(msg);
-        int destPort=req->getControlInfo().getDestPort();
-        int srcPort=req->getControlInfo().getSrcPort();
-        req->setControlInfo(NULL);
-        UDPSegment* useg=new UDPSegment();
-        useg->setSrcPort(srcPort);
-        useg->setDestPort(destPort);
-//        useg->setMsg(*req);
-//        delete(req);
-        cp->encapsulate(useg);
-    }
-    else
-        HTTPServerMsg* resp = check_and_cast<HTTPServerMsg *>(msg);
+    UDPControlInfo* cntl=check_and_cast<UDPControlInfo *>(msg->removeControlInfo());
+    UDPSegment* useg=new UDPSegment();
+    cPacket *cp=(cPacket*)useg;
+    useg->setSrcPort(cntl->getSrcPort());
+    useg->setDestPort(cntl->getDestPort());
+    cp->encapsulate(msg);
     // 2. remove controlinfo
+
     // 3. create udp segment and use controlinfo to set UDP fields
+    delete(cntl);
     // 4. encapsulate http msg and send to lower layer
-    EV<<"GOT smt\n";
     send(cp,"toLowerLayer");
 }
 
 void UDP::handleUDPSegment(cPacket *msg) {
 	// TODO implement handleUDPSegment
     // 1. cast to udp segment
+    UDPSegment* useg=check_and_cast<UDPSegment *>(msg);
     // 2. create controlinfo and use UDP fields to set values
+    UDPControlInfo* cntl=new UDPControlInfo();
+    cntl->setDestPort(useg->getDestPort());
+    cntl->setSrcPort(useg->getSrcPort());
     // 3. decapsulate http msg
+    cMessage *cp=(cMessage *)useg->decapsulate();
     // 4. attach controlinfo and sent to upper layer
+    cp->setControlInfo(cntl);
+    send(cp,"toUpperLayer");
 }
 

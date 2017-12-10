@@ -25,7 +25,8 @@
 Define_Module(HTTPServer);
 
 void HTTPServer::initialize() {
-    // TODO implement initialize
+    srcPort=112;
+    destPort=111;
 }
 
 void HTTPServer::handleMessage(cMessage *msg) {
@@ -49,5 +50,10 @@ void HTTPServer::doGet(std::string resource) {
     else{
         resp->setResponse("Couldnt find file");
     }
+    UDPControlInfo* cntl=new UDPControlInfo();
+    cntl->setSrcPort(this->srcPort);
+    cntl->setDestPort(this->destPort);
+    resp->setControlInfo(cntl);
     send(resp,"toLowerLayer");
 }
+

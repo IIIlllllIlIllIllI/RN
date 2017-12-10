@@ -25,6 +25,8 @@
 Define_Module(HTTPClient);
 
 void HTTPClient::initialize() {
+    srcPort=111;
+    destPort=112;
     startEvent = new cMessage("Event");
     scheduleAt(simTime()+1, startEvent);
 }
@@ -61,12 +63,10 @@ void HTTPClient::handleMessage(cMessage *msg) {
 
     counter++;
 }
-cPacket* HTTPClient::encapsulate(HTTPClientMsg* msg){
-    cPacket* cP=new cPacket();
+HTTPClientMsg* HTTPClient::encapsulate(HTTPClientMsg* msg){
     UDPControlInfo* cntl=new UDPControlInfo();
     cntl->setSrcPort(this->srcPort);
     cntl->setDestPort(this->destPort);
-    msg->setControlInfo(*cntl);
-    cP->encapsulate((cPacket*)msg);
-    return cP;
+    msg->setControlInfo(cntl);
+    return msg;
 }
