@@ -48,24 +48,22 @@ void UDP::handleMessage(cMessage *msg)
 
 void UDP::handleAppMessage(cPacket *msg)
 {
-	// TODO implement handleAppMessage
     // 1. cast to http msg
+    // 2. remove controlinfo
     UDPControlInfo* cntl=check_and_cast<UDPControlInfo *>(msg->removeControlInfo());
+    // 3. create udp segment and use controlinfo to set UDP fields
     UDPSegment* useg=new UDPSegment();
     cPacket *cp=(cPacket*)useg;
     useg->setSrcPort(cntl->getSrcPort());
     useg->setDestPort(cntl->getDestPort());
-    cp->encapsulate(msg);
-    // 2. remove controlinfo
-
-    // 3. create udp segment and use controlinfo to set UDP fields
-    delete(cntl);
     // 4. encapsulate http msg and send to lower layer
+    cp->encapsulate(msg);
+    delete(msg);
+    delete(cntl);
     send(cp,"toLowerLayer");
 }
 
 void UDP::handleUDPSegment(cPacket *msg) {
-	// TODO implement handleUDPSegment
     // 1. cast to udp segment
     UDPSegment* useg=check_and_cast<UDPSegment *>(msg);
     // 2. create controlinfo and use UDP fields to set values

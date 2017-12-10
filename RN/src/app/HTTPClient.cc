@@ -38,7 +38,7 @@ void HTTPClient::handleMessage(cMessage *msg) {
         req = new HTTPClientMsg("get1");
         req->setMethod("GET");
         req->setResource("/test/\r\n");
-        send(encapsulate(req), "toLowerLayer");
+        send(addCntl(req), "toLowerLayer");
     }else{
         resp = check_and_cast<HTTPServerMsg *>(msg);
         switch(counter)
@@ -47,13 +47,13 @@ void HTTPClient::handleMessage(cMessage *msg) {
             req = new HTTPClientMsg("get2");
             req->setMethod("GET");
             req->setResource("/test/logo.gif\r\n");
-            send(encapsulate(req), "toLowerLayer");
+            send(addCntl(req), "toLowerLayer");
             break;
         case 2:
             req = new HTTPClientMsg("get3");
             req->setMethod("GET");
             req->setResource("/test/TechnikErleben.png\r\n");
-            send(encapsulate(req), "toLowerLayer");
+            send(addCntl(req), "toLowerLayer");
             break;
         default:
             break;
@@ -63,7 +63,7 @@ void HTTPClient::handleMessage(cMessage *msg) {
 
     counter++;
 }
-HTTPClientMsg* HTTPClient::encapsulate(HTTPClientMsg* msg){
+HTTPClientMsg* HTTPClient::addCntl(HTTPClientMsg* msg){
     UDPControlInfo* cntl=new UDPControlInfo();
     cntl->setSrcPort(this->srcPort);
     cntl->setDestPort(this->destPort);

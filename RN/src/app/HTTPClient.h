@@ -35,7 +35,7 @@ cMessage *startEvent;
 protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
-    virtual HTTPClientMsg* encapsulate(HTTPClientMsg* msg);
+    virtual HTTPClientMsg* addCntl(HTTPClientMsg* msg);
     inet::IPv4Address *serverIPv4;
     inet::IPv4Address *clientIPv4;
     inet::IPv6Address *serverIPv6;
