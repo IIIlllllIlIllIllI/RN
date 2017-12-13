@@ -58,7 +58,6 @@ void UDP::handleAppMessage(cPacket *msg)
     useg->setDestPort(cntl->getDestPort());
     // 4. encapsulate http msg and send to lower layer
     cp->encapsulate(msg);
-    delete(msg);
     delete(cntl);
     send(cp,"toLowerLayer");
 }
