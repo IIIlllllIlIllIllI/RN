@@ -21,12 +21,11 @@
 #include "HTTPClientMsg_m.h"
 #include "HTTPServerMsg_m.h"
 #include "../udp/UDPControlInfo_m.h"
+#include "../tcp/TCPControlInfo_m.h"
 
 Define_Module(HTTPClient);
 
 void HTTPClient::initialize() {
-    srcPort=111;
-    destPort=112;
     startEvent = new cMessage("Event");
     scheduleAt(simTime()+1, startEvent);
 }
@@ -65,6 +64,13 @@ void HTTPClient::handleMessage(cMessage *msg) {
 }
 HTTPClientMsg* HTTPClient::addCntl(HTTPClientMsg* msg){
     UDPControlInfo* cntl=new UDPControlInfo();
+    cntl->setSrcPort(this->srcPort);
+    cntl->setDestPort(this->destPort);
+    msg->setControlInfo(cntl);
+    return msg;
+}
+HTTPClientMsg* HTTPClient::addTCPCntl(HTTPClientMsg* msg){
+    TCPControlInfo* cntl=new TCPControlInfo();
     cntl->setSrcPort(this->srcPort);
     cntl->setDestPort(this->destPort);
     msg->setControlInfo(cntl);
