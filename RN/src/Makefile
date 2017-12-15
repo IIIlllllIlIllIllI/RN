@@ -38,9 +38,12 @@ OBJS = \
     $O/3rdParty/MACAddress.o \
     $O/app/HTTPClient.o \
     $O/app/HTTPServer.o \
+    $O/tcp/TCP.o \
     $O/udp/UDP.o \
     $O/app/HTTPClientMsg_m.o \
     $O/app/HTTPServerMsg_m.o \
+    $O/tcp/TCPControlInfo_m.o \
+    $O/tcp/TCPSegment_m.o \
     $O/udp/UDPControlInfo_m.o \
     $O/udp/UDPSegment_m.o
 
@@ -48,6 +51,8 @@ OBJS = \
 MSGFILES = \
     app/HTTPClientMsg.msg \
     app/HTTPServerMsg.msg \
+    tcp/TCPControlInfo.msg \
+    tcp/TCPSegment.msg \
     udp/UDPControlInfo.msg \
     udp/UDPSegment.msg
 

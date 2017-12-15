@@ -21,6 +21,7 @@ package networks;
 
 import src.app.HTTPClient;
 import src.udp.UDP;
+import src.tcp.TCP;
 
 module ClientHost
 {
@@ -31,10 +32,13 @@ module ClientHost
     submodules:
         client: HTTPClient;
         udp: UDP;
+        tcp: TCP;
     connections:
-        inNet --> udp.fromLowerLayer;
+        //inNet --> udp.fromLowerLayer;
+        //outNet <-- udp.toLowerLayer;
+        inNet --> tcp.fromLowerLayer;
+        outNet <-- tcp.toLowerLayer;
         client.toLowerLayer --> udp.fromUpperLayer;
-        udp.toUpperLayer --> client.fromLowerLayer;
-        outNet <-- udp.toLowerLayer;
+        udp.toUpperLayer --> client.fromLowerLayer;        
 }
 

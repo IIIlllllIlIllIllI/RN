@@ -21,6 +21,7 @@ package networks;
 
 import src.app.HTTPServer;
 import src.udp.UDP;
+import src.tcp.TCP;
 
 module ServerHost
 {
@@ -31,10 +32,13 @@ module ServerHost
     submodules:
         server: HTTPServer;
         udp: UDP;
+        tcp: TCP;
     connections:
-        inNet --> udp.fromLowerLayer;
+        inNet --> tcp.fromLowerLayer;
+        outNet <-- tcp.toLowerLayer;
+        //inNet --> udp.fromLowerLayer;
+        //outNet <-- udp.toLowerLayer;
         server.toLowerLayer --> udp.fromUpperLayer;
-        udp.toUpperLayer --> server.fromLowerLayer;
-        outNet <-- udp.toLowerLayer;
+        udp.toUpperLayer --> server.fromLowerLayer;        
 }
 
