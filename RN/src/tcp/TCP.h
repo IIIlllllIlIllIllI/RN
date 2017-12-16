@@ -35,6 +35,7 @@ protected:
 private:
     int seqNr = 0;      // sequence number 32 bit
     int ackNr = 0;      // acknowledgement number 32 bit
+    int status=0;
 };
 
 

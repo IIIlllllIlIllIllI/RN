@@ -30,6 +30,7 @@ void TCP::initialize(){
     // TODO Initialise seqn and ackn.
     seqNr=100;
     ackNr=300;
+    status=0;
 }
 
 
@@ -58,7 +59,7 @@ void TCP::handleAppMessage(cPacket *msg) {
     tcpsegment->setDestPort(cntl->getDestPort());
     //
     int tcpCommand = cntl->getTcpCommand();     // 0 ... do nothing, 1 ... open connection, 2 ... close connection
-    int tcpStatus = cntl->getTcpStatus();      // 1 ... connection is open, 2 ... connection is closed, 3 syn-Received
+    int tcpStatus = cntl->getTcpStatus();      // 1 ... connection is open, 2 ... connection is closed
     if(tcpCommand==1&&tcpStatus==2){
         //open new tcpconnection
         tcpsegment->setSyn(true);
