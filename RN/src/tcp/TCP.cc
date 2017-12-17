@@ -84,24 +84,28 @@ void TCP::handleTCPSegment(cPacket *msg) {
 
     // 1. cast to tcp segment
     TCPSegment* tcpsegment = check_and_cast<TCPSegment *>(msg);
-    if (status == 0) {
+    if (status == 0&&tcpsegment->getSyn()) {
         //syn received, send ack
         tcpsegment->setAck(true);
         tcpsegment->setSyn(true);
+        ackNr=tcpsegment->getSeqNr()+1;
         tcpsegment->setSeqNr(seqNr);
         tcpsegment->setAckNr(ackNr);
         status = 2; // syn-received
         send(tcpsegment, "toLowerLayer");
-    } else if (status == 1) {
+    } else if (status == 1&&tcpsegment->getAck()&&tcpsegment->getSyn()) {
         //connection established, send ack
         tcpsegment->setAck(true);
+        ackNr=tcpsegment->getSeqNr()+1;
+        seqNr++;
         tcpsegment->setSeqNr(seqNr);
         tcpsegment->setAckNr(ackNr);
         status = 3; //established
         EV<<"ClientEstablished\n";
         send(tcpsegment, "toLowerLayer");
-    } else if (status == 2) {
+    } else if (status == 2&&tcpsegment->getAck()) {
         //connection established
+        seqNr++;
         status = 3; //established
         EV<<"ServerEstablished\n";
         delete (tcpsegment);
