@@ -68,7 +68,9 @@ void TCP::handleAppMessage(cPacket *msg) {
         tcpsegment->setSyn(true);
         tcpsegment->setSeqNr(seqNr);
         status = 1;      // syn-sent
-    } else if (tcpCommand == 0 && tcpStatus == 1 && status == 3) {
+    } else if (tcpCommand == 2 && tcpStatus == 1 && status == 3) {
+        //close connection
+    }  else if (tcpCommand == 0 && tcpStatus == 1 && status == 3) {
         //send message
     } else {
         throw std::invalid_argument("can't send message from current state");

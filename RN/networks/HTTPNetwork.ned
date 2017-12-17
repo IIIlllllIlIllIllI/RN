@@ -36,6 +36,8 @@ network HTTPNetwork
         client: ClientHost;
         server: ServerHost;
     connections:
-		client.outNet --> Channel --> server.inNet;
-		server.outNet --> Channel --> client.inNet;
+		client.outNetUdp --> Channel --> server.inNetUdp;
+		client.outNetTcp --> Channel --> server.inNetTcp;
+		server.outNetUdp --> Channel --> client.inNetUdp;
+		server.outNetTcp --> Channel --> client.inNetTcp;
 }

@@ -26,19 +26,23 @@ import src.tcp.TCP;
 module ServerHost
 {
     gates:
-        input inNet;
-        output outNet;
+        input inNetUdp;
+        output outNetUdp;
+        input inNetTcp;
+        output outNetTcp;
 
     submodules:
         server: HTTPServer;
-        //udp: UDP;
+        udp: UDP;
         tcp: TCP;
     connections:
-        inNet --> tcp.fromLowerLayer;
-        outNet <-- tcp.toLowerLayer;
-        //inNet --> udp.fromLowerLayer;
-        //outNet <-- udp.toLowerLayer;
-        server.toLowerLayer --> tcp.fromUpperLayer;
-        tcp.toUpperLayer --> server.fromLowerLayer;        
+        inNetUdp --> udp.fromLowerLayer;
+        outNetUdp <-- udp.toLowerLayer;
+        inNetTcp --> tcp.fromLowerLayer;
+        outNetTcp <-- tcp.toLowerLayer;
+        server.toTcp --> tcp.fromUpperLayer;
+        tcp.toUpperLayer --> server.fromTcp;      
+        server.toUdp --> udp.fromUpperLayer;
+        udp.toUpperLayer --> server.fromUdp;        
 }
 

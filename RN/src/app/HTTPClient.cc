@@ -47,7 +47,7 @@ void HTTPClient::handleMessage(cMessage *msg) {
             cntl->setTcpStatus(2);
             tcpMsg->setControlInfo(cntl);
             tcpMsg->setBitLength(1);
-            send(tcpMsg, "toLowerLayer");
+            send(tcpMsg, "toTcp");
             break;
         case 1:
             tcpMsg = new HTTPClientMsg("close");
@@ -58,14 +58,14 @@ void HTTPClient::handleMessage(cMessage *msg) {
             cntl->setTcpStatus(1);
             tcpMsg->setControlInfo(cntl);
             tcpMsg->setBitLength(1);
-            send(tcpMsg, "toLowerLayer");
+            send(tcpMsg, "toTcp");
             break;
         default:
             break;
         }
         counter++;
     } else {
-        send(msg, "toLowerLayer");
+        send(msg, "toTcp");
     }
 
 }

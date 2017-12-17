@@ -25,6 +25,10 @@ simple HTTPClient
         int srcPort = default(6666);
         int destPort = default(80);
     gates:
-        input fromLowerLayer;
-        output toLowerLayer;
+//        input fromLowerLayer;
+//        output toLowerLayer;
+        input fromUdp;
+        output toUdp;
+        input fromTcp;
+        output toTcp;
 }

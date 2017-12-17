@@ -29,7 +29,7 @@ void HTTPServer::initialize() {
 }
 
 void HTTPServer::handleMessage(cMessage *msg) {
-    send(msg, "toLowerLayer");
+    send(msg, "toTcp");
 }
 void HTTPServer::doGet(std::string resource) {
     EV << resource;
