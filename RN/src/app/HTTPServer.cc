@@ -26,24 +26,10 @@
 Define_Module (HTTPServer);
 
 void HTTPServer::initialize() {
-    cMessage* listen = new cMessage("listen");
-    scheduleAt(simTime() + 1, listen);
 }
 
 void HTTPServer::handleMessage(cMessage *msg) {
-    if (msg->isSelfMessage()) {
-            HTTPServerMsg* tcpMsg = new HTTPServerMsg("listen");
-            TCPControlInfo* cntl = new TCPControlInfo();
-            cntl->setSrcPort(this->srcPort);
-            cntl->setDestPort(this->destPort);
-            cntl->setTcpCommand(1);
-            cntl->setTcpStatus(2);
-            tcpMsg->setControlInfo(cntl);
-            tcpMsg->setBitLength(1);
-            send(tcpMsg, "toLowerLayer");
-    } else {
-        send(msg, "toLowerLayer");
-    }
+    send(msg, "toLowerLayer");
 }
 void HTTPServer::doGet(std::string resource) {
     EV << resource;

@@ -23,27 +23,27 @@
 #include "../3rdParty/IPv6Address.h"
 #include "TCPControlInfo_m.h"
 #include "TCPSegment_m.h"
+#include "../app/HTTPServerMsg_m.h"
 
-Define_Module(TCP);
+Define_Module (TCP);
 
-void TCP::initialize(){
+void TCP::initialize() {
     // TODO Initialise seqn and ackn.
-    seqNr=100;
-    ackNr=300;
+    seqNr = 100;
+    ackNr = 300;
 
-    // 0 ... closed, 1 ... Syn-sent, 2 ... Syn-received, 3 ... open, 4 ... listening
-    status=0;
+    // 0 ... closed, 1 ... Syn-sent, 2 ... Syn-received, 3 ... open
+    status = 0;
 }
 
-
-void TCP::handleMessage(cMessage *msg){
+void TCP::handleMessage(cMessage *msg) {
 
     // TODO Handle timeouts.
     // TODO Simulate packet loss.
 
     if (msg->arrivedOn("fromUpperLayer")) {
         // Comes from appliction.
-        this->handleAppMessage((cPacket*)msg);
+        this->handleAppMessage((cPacket*) msg);
     }
 
     else if (msg->arrivedOn("fromLowerLayer")) {
@@ -54,57 +54,72 @@ void TCP::handleMessage(cMessage *msg){
 
 void TCP::handleAppMessage(cPacket *msg) {
     // 1. remove controlinfo
-    TCPControlInfo* cntl=check_and_cast<TCPControlInfo *>(msg->removeControlInfo());
+    TCPControlInfo* cntl = check_and_cast<TCPControlInfo *>(
+            msg->removeControlInfo());
     // 2. create tcp segment and use controlinfo to set TCP fields
-    TCPSegment* tcpsegment=new TCPSegment();
+    TCPSegment* tcpsegment = new TCPSegment();
     tcpsegment->setSrcPort(cntl->getSrcPort());
     tcpsegment->setDestPort(cntl->getDestPort());
     //building connection...
-    int tcpCommand = cntl->getTcpCommand();     // 0 ... do nothing, 1 ... open connection, 2 ... close connection
-    int tcpStatus = cntl->getTcpStatus();      // 1 ... connection is open, 2 ... connection is closed
-    if(tcpCommand==1&&tcpStatus==2&&status==0){
+    int tcpCommand = cntl->getTcpCommand(); // 0 ... do nothing, 1 ... open connection, 2 ... close connection
+    int tcpStatus = cntl->getTcpStatus(); // 1 ... connection is open, 2 ... connection is closed
+    if (tcpCommand == 1 && tcpStatus == 2 && status == 0) {
         //open new tcpconnection
         tcpsegment->setSyn(true);
         tcpsegment->setSeqNr(seqNr);
-        status=1;// syn-sent
-    }else if(tcpCommand==1&&tcpStatus==2&&status==2){
-        //syn received, send ack
-        tcpsegment->setAck(true);
-        tcpsegment->setSyn(true);
-        tcpsegment->setSeqNr(seqNr);
-        tcpsegment->setAckNr(ackNr);
-    }else if(tcpCommand==1&&tcpStatus==1&&status==1){
-        //connection established, send ack
-        tcpsegment->setAck(true);
-        tcpsegment->setSeqNr(seqNr);
-        tcpsegment->setAckNr(ackNr);
-        status=3;
-    }else if(tcpCommand==0&&tcpStatus==1&&status==3){
+        status = 1;      // syn-sent
+    } else if (tcpCommand == 0 && tcpStatus == 1 && status == 3) {
         //send message
-    }else{
+    } else {
         throw std::invalid_argument("can't send message from current state");
     }
     // 3. encapsulate http msg and send to lower layer
     tcpsegment->encapsulate(msg);
-    delete(cntl);
-    send(tcpsegment,"toLowerLayer");
+    delete (cntl);
+    send(tcpsegment, "toLowerLayer");
 
 }
 
 void TCP::handleTCPSegment(cPacket *msg) {
 
     // 1. cast to tcp segment
-    TCPSegment* tcpsegment=check_and_cast<TCPSegment *>(msg);
-    // 2. create controlinfo and use TCP fields to set values
-    TCPControlInfo* cntl=new TCPControlInfo();
-    cntl->setDestPort(tcpsegment->getDestPort());
-    cntl->setSrcPort(tcpsegment->getSrcPort());
-    cntl->setTcpCommand(0);
-
-    cntl->setTcpStatus(0);
-    // 3. decapsulate http msg
-    cMessage *cp=(cMessage *)tcpsegment->decapsulate();
-    // 4. attach controlinfo and sent to upper layer
-    cp->setControlInfo(cntl);
-    send(cp,"toUpperLayer");
+    TCPSegment* tcpsegment = check_and_cast<TCPSegment *>(msg);
+    if (status == 0) {
+        //syn received, send ack
+        tcpsegment->setAck(true);
+        tcpsegment->setSyn(true);
+        tcpsegment->setSeqNr(seqNr);
+        tcpsegment->setAckNr(ackNr);
+        status = 2; // syn-received
+        send(tcpsegment, "toLowerLayer");
+    } else if (status == 1) {
+        //connection established, send ack
+        tcpsegment->setAck(true);
+        tcpsegment->setSeqNr(seqNr);
+        tcpsegment->setAckNr(ackNr);
+        status = 3; //established
+        EV<<"ClientEstablished\n";
+        send(tcpsegment, "toLowerLayer");
+    } else if (status == 2) {
+        //connection established
+        status = 3; //established
+        EV<<"ServerEstablished\n";
+        delete (tcpsegment);
+        return;
+    } else if (status == 3) {
+        // 2. create controlinfo and use TCP fields to set values
+        TCPControlInfo* cntl = new TCPControlInfo();
+        cntl->setDestPort(tcpsegment->getDestPort());
+        cntl->setSrcPort(tcpsegment->getSrcPort());
+        cntl->setTcpCommand(0);
+        cntl->setTcpStatus(1);
+        // 3. decapsulate http msg
+        cMessage *cp = (cMessage *) tcpsegment->decapsulate();
+        // 4. attach controlinfo and sent to upper layer
+        cp->setControlInfo(cntl);
+        send(cp, "toUpperLayer");
+    }
+    else{
+        throw std::invalid_argument("can't send message from current state");
+    }
 }
