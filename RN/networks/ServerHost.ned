@@ -31,14 +31,14 @@ module ServerHost
 
     submodules:
         server: HTTPServer;
-        udp: UDP;
+        //udp: UDP;
         tcp: TCP;
     connections:
         inNet --> tcp.fromLowerLayer;
         outNet <-- tcp.toLowerLayer;
         //inNet --> udp.fromLowerLayer;
         //outNet <-- udp.toLowerLayer;
-        server.toLowerLayer --> udp.fromUpperLayer;
-        udp.toUpperLayer --> server.fromLowerLayer;        
+        server.toLowerLayer --> tcp.fromUpperLayer;
+        tcp.toUpperLayer --> server.fromLowerLayer;        
 }
 

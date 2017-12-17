@@ -23,54 +23,61 @@
 #include "../udp/UDPControlInfo_m.h"
 #include "../tcp/TCPControlInfo_m.h"
 
-Define_Module(HTTPClient);
+Define_Module (HTTPClient);
 
 void HTTPClient::initialize() {
     startEvent = new cMessage("Event");
-    scheduleAt(simTime()+1, startEvent);
+    cMessage* closeConnection = new cMessage("close");
+    scheduleAt(simTime() + 1, startEvent);
+    scheduleAt(simTime() + 100, closeConnection);
 }
 
 void HTTPClient::handleMessage(cMessage *msg) {
-    HTTPServerMsg* resp;
-    HTTPClientMsg* req;
-    if(msg->isSelfMessage()){
-        req = new HTTPClientMsg("get1");
-        req->setMethod("GET");
-        req->setResource("/test/\r\n");
-        send(addCntl(req), "toLowerLayer");
-    }else{
-        resp = check_and_cast<HTTPServerMsg *>(msg);
-        switch(counter)
-        {
-        case 1:
-            req = new HTTPClientMsg("get2");
-            req->setMethod("GET");
-            req->setResource("/test/logo.gif\r\n");
-            send(addCntl(req), "toLowerLayer");
+
+    HTTPClientMsg* tcpMsg;
+    TCPControlInfo* cntl;
+    if (msg->isSelfMessage()) {
+        switch (counter) {
+        case 0:
+            tcpMsg = new HTTPClientMsg("connect");
+            cntl = new TCPControlInfo();
+            cntl->setSrcPort(this->srcPort);
+            cntl->setDestPort(this->destPort);
+            cntl->setTcpCommand(1);
+            cntl->setTcpStatus(2);
+            tcpMsg->setControlInfo(cntl);
+            tcpMsg->setBitLength(1);
+            send(tcpMsg, "toLowerLayer");
             break;
-        case 2:
-            req = new HTTPClientMsg("get3");
-            req->setMethod("GET");
-            req->setResource("/test/TechnikErleben.png\r\n");
-            send(addCntl(req), "toLowerLayer");
+        case 1:
+            tcpMsg = new HTTPClientMsg("close");
+            cntl = new TCPControlInfo();
+            cntl->setSrcPort(this->srcPort);
+            cntl->setDestPort(this->destPort);
+            cntl->setTcpCommand(2);
+            cntl->setTcpStatus(1);
+            tcpMsg->setControlInfo(cntl);
+            tcpMsg->setBitLength(1);
+            send(tcpMsg, "toLowerLayer");
             break;
         default:
             break;
         }
-        EV<<resp->getResponse()<<"\n";
+        counter++;
+    } else {
+        send(msg, "toLowerLayer");
     }
 
-    counter++;
 }
-HTTPClientMsg* HTTPClient::addCntl(HTTPClientMsg* msg){
-    UDPControlInfo* cntl=new UDPControlInfo();
+HTTPClientMsg* HTTPClient::addCntl(HTTPClientMsg* msg) {
+    UDPControlInfo* cntl = new UDPControlInfo();
     cntl->setSrcPort(this->srcPort);
     cntl->setDestPort(this->destPort);
     msg->setControlInfo(cntl);
     return msg;
 }
-HTTPClientMsg* HTTPClient::addTCPCntl(HTTPClientMsg* msg){
-    TCPControlInfo* cntl=new TCPControlInfo();
+HTTPClientMsg* HTTPClient::addTCPCntl(HTTPClientMsg* msg) {
+    TCPControlInfo* cntl = new TCPControlInfo();
     cntl->setSrcPort(this->srcPort);
     cntl->setDestPort(this->destPort);
     msg->setControlInfo(cntl);

@@ -21,39 +21,47 @@
 #include "HTTPClientMsg_m.h"
 #include "HTTPServerMsg_m.h"
 #include "../udp/UDPControlInfo_m.h"
+#include "../tcp/TCPControlInfo_m.h"
 
-Define_Module(HTTPServer);
+Define_Module (HTTPServer);
 
 void HTTPServer::initialize() {
-    srcPort=112;
-    destPort=111;
+    cMessage* listen = new cMessage("listen");
+    scheduleAt(simTime() + 1, listen);
 }
 
 void HTTPServer::handleMessage(cMessage *msg) {
-    HTTPClientMsg* req = check_and_cast<HTTPClientMsg *>(msg);
-    if (std::strcmp(req->getMethod(), "GET") == 0) {
-        doGet(req->getResource());
+    if (msg->isSelfMessage()) {
+            HTTPServerMsg* tcpMsg = new HTTPServerMsg("listen");
+            TCPControlInfo* cntl = new TCPControlInfo();
+            cntl->setSrcPort(this->srcPort);
+            cntl->setDestPort(this->destPort);
+            cntl->setTcpCommand(1);
+            cntl->setTcpStatus(2);
+            tcpMsg->setControlInfo(cntl);
+            tcpMsg->setBitLength(1);
+            send(tcpMsg, "toLowerLayer");
+    } else {
+        send(msg, "toLowerLayer");
     }
 }
 void HTTPServer::doGet(std::string resource) {
     EV << resource;
     HTTPServerMsg * resp = new HTTPServerMsg("response");
     if (resource.compare("/test/\r\n") == 0) {
-        resp->setResponse("<html>\n\t<head><title>Test</title></head>\n\t<body>\n\t\t<img src=\"logo.gif\" />\n\t\t<h1>Welcome</h1>\n\t\t<img src=\"TechnikErleben.png\" />\n\t</body>\n</html>\n");
-    }
-    else if(resource.compare("/test/logo.gif\r\n") == 0){
+        resp->setResponse(
+                "<html>\n\t<head><title>Test</title></head>\n\t<body>\n\t\t<img src=\"logo.gif\" />\n\t\t<h1>Welcome</h1>\n\t\t<img src=\"TechnikErleben.png\" />\n\t</body>\n</html>\n");
+    } else if (resource.compare("/test/logo.gif\r\n") == 0) {
         resp->setResponse("logo.gif");
-    }
-    else if(resource.compare("/test/TechnikErleben.png\r\n") == 0){
+    } else if (resource.compare("/test/TechnikErleben.png\r\n") == 0) {
         resp->setResponse("TechnikErleben.png");
-    }
-    else{
+    } else {
         resp->setResponse("Couldnt find file");
     }
-    UDPControlInfo* cntl=new UDPControlInfo();
+    UDPControlInfo* cntl = new UDPControlInfo();
     cntl->setSrcPort(this->srcPort);
     cntl->setDestPort(this->destPort);
     resp->setControlInfo(cntl);
-    send(resp,"toLowerLayer");
+    send(resp, "toLowerLayer");
 }
 

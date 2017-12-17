@@ -30,6 +30,8 @@ void TCP::initialize(){
     // TODO Initialise seqn and ackn.
     seqNr=100;
     ackNr=300;
+
+    // 0 ... closed, 1 ... Syn-sent, 2 ... Syn-received, 3 ... open, 4 ... listening
     status=0;
 }
 
@@ -57,28 +59,30 @@ void TCP::handleAppMessage(cPacket *msg) {
     TCPSegment* tcpsegment=new TCPSegment();
     tcpsegment->setSrcPort(cntl->getSrcPort());
     tcpsegment->setDestPort(cntl->getDestPort());
-    //
+    //building connection...
     int tcpCommand = cntl->getTcpCommand();     // 0 ... do nothing, 1 ... open connection, 2 ... close connection
     int tcpStatus = cntl->getTcpStatus();      // 1 ... connection is open, 2 ... connection is closed
-    if(tcpCommand==1&&tcpStatus==2){
+    if(tcpCommand==1&&tcpStatus==2&&status==0){
         //open new tcpconnection
         tcpsegment->setSyn(true);
         tcpsegment->setSeqNr(seqNr);
-    }else if(tcpCommand==1&&tcpStatus==3){
+        status=1;// syn-sent
+    }else if(tcpCommand==1&&tcpStatus==2&&status==2){
         //syn received, send ack
         tcpsegment->setAck(true);
         tcpsegment->setSyn(true);
-        swapSeqAndAck();
         tcpsegment->setSeqNr(seqNr);
         tcpsegment->setAckNr(ackNr);
-    }else if(tcpCommand==1&&tcpStatus==1){
+    }else if(tcpCommand==1&&tcpStatus==1&&status==1){
         //connection established, send ack
         tcpsegment->setAck(true);
-        swapSeqAndAck();
         tcpsegment->setSeqNr(seqNr);
         tcpsegment->setAckNr(ackNr);
-    }else if(tcpCommand==0&&tcpStatus==1){
+        status=3;
+    }else if(tcpCommand==0&&tcpStatus==1&&status==3){
         //send message
+    }else{
+        throw std::invalid_argument("can't send message from current state");
     }
     // 3. encapsulate http msg and send to lower layer
     tcpsegment->encapsulate(msg);
@@ -96,15 +100,11 @@ void TCP::handleTCPSegment(cPacket *msg) {
     cntl->setDestPort(tcpsegment->getDestPort());
     cntl->setSrcPort(tcpsegment->getSrcPort());
     cntl->setTcpCommand(0);
+
     cntl->setTcpStatus(0);
     // 3. decapsulate http msg
     cMessage *cp=(cMessage *)tcpsegment->decapsulate();
     // 4. attach controlinfo and sent to upper layer
     cp->setControlInfo(cntl);
     send(cp,"toUpperLayer");
-}
-void TCP::swapSeqAndAck(){
-    int tmp=ackNr;
-    ackNr=seqNr+1;
-    seqNr=tmp;
 }

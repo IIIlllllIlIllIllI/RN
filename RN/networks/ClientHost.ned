@@ -31,14 +31,14 @@ module ClientHost
 
     submodules:
         client: HTTPClient;
-        udp: UDP;
+        //udp: UDP;
         tcp: TCP;
     connections:
         //inNet --> udp.fromLowerLayer;
         //outNet <-- udp.toLowerLayer;
         inNet --> tcp.fromLowerLayer;
         outNet <-- tcp.toLowerLayer;
-        client.toLowerLayer --> udp.fromUpperLayer;
-        udp.toUpperLayer --> client.fromLowerLayer;        
+        client.toLowerLayer --> tcp.fromUpperLayer;
+        tcp.toUpperLayer --> client.fromLowerLayer;        
 }
 
