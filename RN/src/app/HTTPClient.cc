@@ -40,24 +40,26 @@ void HTTPClient::handleMessage(cMessage *msg) {
         switch (counter) {
         case 0:
             tcpMsg = new HTTPClientMsg("connect");
-            cntl = new TCPControlInfo();
-            cntl->setSrcPort(this->srcPort);
-            cntl->setDestPort(this->destPort);
-            cntl->setTcpCommand(1);
-            cntl->setTcpStatus(2);
-            tcpMsg->setControlInfo(cntl);
-            tcpMsg->setBitLength(1);
+//            cntl = new TCPControlInfo();
+//            cntl->setSrcPort(this->srcPort);
+//            cntl->setDestPort(this->destPort);
+//            cntl->setTcpCommand(1);
+//            cntl->setTcpStatus(2);
+//            tcpMsg->setControlInfo(cntl);
+//            tcpMsg->setBitLength(1);
+            tcpMsg = addTCPCntl(tcpMsg,1,2,1);
             send(tcpMsg, "toTcp");
             break;
         case 1:
             tcpMsg = new HTTPClientMsg("close");
-            cntl = new TCPControlInfo();
-            cntl->setSrcPort(this->srcPort);
-            cntl->setDestPort(this->destPort);
-            cntl->setTcpCommand(2);
-            cntl->setTcpStatus(1);
-            tcpMsg->setControlInfo(cntl);
-            tcpMsg->setBitLength(1);
+//            cntl = new TCPControlInfo();
+//            cntl->setSrcPort(this->srcPort);
+//            cntl->setDestPort(this->destPort);
+//            cntl->setTcpCommand(2);
+//            cntl->setTcpStatus(1);
+//            tcpMsg->setControlInfo(cntl);
+//            tcpMsg->setBitLength(1);
+            tcpMsg = addTCPCntl(tcpMsg,2,1,1);
             send(tcpMsg, "toTcp");
             break;
         default:
@@ -76,10 +78,13 @@ HTTPClientMsg* HTTPClient::addCntl(HTTPClientMsg* msg) {
     msg->setControlInfo(cntl);
     return msg;
 }
-HTTPClientMsg* HTTPClient::addTCPCntl(HTTPClientMsg* msg) {
+HTTPClientMsg* HTTPClient::addTCPCntl(HTTPClientMsg* msg, int tcpCommand, int tcpStatus, int BitLength) {
     TCPControlInfo* cntl = new TCPControlInfo();
     cntl->setSrcPort(this->srcPort);
     cntl->setDestPort(this->destPort);
+    cntl->setTcpCommand(tcpCommand);
+    cntl->setTcpStatus(tcpStatus);
     msg->setControlInfo(cntl);
+    msg->setBitLength(BitLength);
     return msg;
 }
