@@ -32,7 +32,7 @@ void TCP::initialize() {
     seqNr = 100;
     ackNr = 300;
 
-    // 0 ... closed, 1 ... Syn-sent, 2 ... Syn-received, 3 ... open
+    // 0 ... closed, 1 ... Syn-sent, 2 ... Syn-received, 3 ... open, 4 ... fin-wait-1, 5 ... fin-wait-2, 6 ... time-wait, 7 close-wait, 8 ... Last-ack
     status = 0;
 }
 
@@ -70,7 +70,12 @@ void TCP::handleAppMessage(cPacket *msg) {
         status = 1;      // syn-sent
     } else if (tcpCommand == 2 && tcpStatus == 1 && status == 3) {
         //close connection
-    }  else if (tcpCommand == 0 && tcpStatus == 1 && status == 3) {
+        tcpsegment->setFin(true);
+        tcpsegment->setAck(true);
+        tcpsegment->setSeqNr(seqNr);
+        tcpsegment->setAckNr(ackNr);
+        status = 4;
+    } else if (tcpCommand == 0 && tcpStatus == 1 && status == 3) {
         //send message
     } else {
         throw std::invalid_argument("can't send message from current state");
@@ -86,30 +91,75 @@ void TCP::handleTCPSegment(cPacket *msg) {
 
     // 1. cast to tcp segment
     TCPSegment* tcpsegment = check_and_cast<TCPSegment *>(msg);
-    if (status == 0&&tcpsegment->getSyn()) {
+    if (status == 0 && tcpsegment->getSyn()) {
         //syn received, send ack
         tcpsegment->setAck(true);
         tcpsegment->setSyn(true);
-        ackNr=tcpsegment->getSeqNr()+1;
+        ackNr = tcpsegment->getSeqNr() + 1;
         tcpsegment->setSeqNr(seqNr);
         tcpsegment->setAckNr(ackNr);
         status = 2; // syn-received
         send(tcpsegment, "toLowerLayer");
-    } else if (status == 1&&tcpsegment->getAck()&&tcpsegment->getSyn()) {
+    } else if (status == 1 && tcpsegment->getAck() && tcpsegment->getSyn()) {
         //connection established, send ack
         tcpsegment->setAck(true);
-        ackNr=tcpsegment->getSeqNr()+1;
+        ackNr = tcpsegment->getSeqNr() + 1;
         seqNr++;
         tcpsegment->setSeqNr(seqNr);
         tcpsegment->setAckNr(ackNr);
         status = 3; //established
-        EV<<"ClientEstablished\n";
+        EV << "ClientEstablished\n";
         send(tcpsegment, "toLowerLayer");
-    } else if (status == 2&&tcpsegment->getAck()) {
+    } else if (status == 2 && tcpsegment->getAck()) {
         //connection established
         seqNr++;
         status = 3; //established
-        EV<<"ServerEstablished\n";
+        EV << "ServerEstablished\n";
+        delete (tcpsegment);
+        return;
+    } else if (status == 3 && tcpsegment->getFin() && tcpsegment->getAck()) {
+        // go to close-wait
+        ackNr = tcpsegment->getSeqNr() + 1;
+        seqNr++;
+        tcpsegment->setSeqNr(seqNr);
+        tcpsegment->setAckNr(ackNr);
+        tcpsegment->setAck(true);
+        status = 7;
+        send(tcpsegment, "toLowerLayer");
+        // sleep?
+
+        //go to last-ack
+        tcpsegment = new TCPSegment("Close");
+        tcpsegment->setSeqNr(seqNr);
+        tcpsegment->setAckNr(ackNr);
+        tcpsegment->setAck(true);
+        tcpsegment->setFin(true);
+        status = 8;
+        send(tcpsegment, "toLowerLayer");
+    } else if (status == 5 && tcpsegment->getAck() && tcpsegment->getFin()) {
+        // go to time-wait
+        ackNr = tcpsegment->getSeqNr() + 1;
+        seqNr++;
+        tcpsegment->setSeqNr(seqNr);
+        tcpsegment->setAckNr(ackNr);
+        tcpsegment->setAck(true);
+        status = 6;
+        send(tcpsegment, "toLowerLayer");
+
+        //wait 2 msl
+        //close connection
+        status = 0;
+        EV << "ClientClosed\n";
+    } else if (status == 8 && tcpsegment->getAck()) {
+        //close connection
+        status = 0;
+        EV << "ServerClosed\n";
+        delete (tcpsegment);
+        return;
+    } else if (status == 4 && tcpsegment->getAck()) {
+        // go to fin-wait 2
+        ackNr = tcpsegment->getSeqNr() + 1;
+        status = 5;
         delete (tcpsegment);
         return;
     } else if (status == 3) {
@@ -124,8 +174,7 @@ void TCP::handleTCPSegment(cPacket *msg) {
         // 4. attach controlinfo and sent to upper layer
         cp->setControlInfo(cntl);
         send(cp, "toUpperLayer");
-    }
-    else{
+    } else {
         throw std::invalid_argument("can't send message from current state");
     }
 }
