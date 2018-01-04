@@ -27,48 +27,48 @@ Define_Module (HTTPClient);
 
 void HTTPClient::initialize() {
     startEvent = new cMessage("Event");
-    cMessage* closeConnection = new cMessage("close");
+//    cMessage* closeConnection = new cMessage("close");
     scheduleAt(simTime() + 10, startEvent);
-    scheduleAt(simTime() + 100, closeConnection);
+//    scheduleAt(simTime() + 100, closeConnection);
 }
 
 void HTTPClient::handleMessage(cMessage *msg) {
 
     HTTPClientMsg* tcpMsg;
     TCPControlInfo* cntl;
-    if (msg->isSelfMessage()) {
-        switch (counter) {
-        case 0:
-            tcpMsg = new HTTPClientMsg("connect");
-//            cntl = new TCPControlInfo();
-//            cntl->setSrcPort(this->srcPort);
-//            cntl->setDestPort(this->destPort);
-//            cntl->setTcpCommand(1);
-//            cntl->setTcpStatus(2);
-//            tcpMsg->setControlInfo(cntl);
-//            tcpMsg->setBitLength(1);
-            tcpMsg = addTCPCntl(tcpMsg,1,2,1);
-            send(tcpMsg, "toTcp");
-            break;
-        case 1:
-            tcpMsg = new HTTPClientMsg("close");
-//            cntl = new TCPControlInfo();
-//            cntl->setSrcPort(this->srcPort);
-//            cntl->setDestPort(this->destPort);
-//            cntl->setTcpCommand(2);
-//            cntl->setTcpStatus(1);
-//            tcpMsg->setControlInfo(cntl);
-//            tcpMsg->setBitLength(1);
-            tcpMsg = addTCPCntl(tcpMsg,2,1,1);
-            send(tcpMsg, "toTcp");
-            break;
-        default:
-            break;
-        }
-        counter++;
-    } else {
-        send(msg, "toTcp");
+
+    switch (counter) {
+    case 0:
+        tcpMsg = new HTTPClientMsg("connect");
+        tcpMsg = addTCPCntl(tcpMsg,1,2,1);
+        send(tcpMsg, "toTcp");
+        break;
+    case 1:
+        EV << "Message get\n";
+        tcpMsg = new HTTPClientMsg("get");
+        tcpMsg = addTCPCntl(tcpMsg,0,1,1);
+        send(tcpMsg, "toTcp");
+        break;
+    case 2:
+        EV << "Message <html>\n";
+        tcpMsg = new HTTPClientMsg("<html>");
+        tcpMsg = addTCPCntl(tcpMsg,0,1,1);
+        send(tcpMsg, "toTcp");
+        break;
+    case 3:
+        EV << "Message picture\n";
+        tcpMsg = new HTTPClientMsg("picture");
+        tcpMsg = addTCPCntl(tcpMsg,0,1,1);
+        send(tcpMsg, "toTcp");
+        break;
+    case 4 :
+        tcpMsg = new HTTPClientMsg("close");
+        tcpMsg = addTCPCntl(tcpMsg,2,1,1);
+        send(tcpMsg, "toTcp");
+    default:
+        break;
     }
+    counter++;
 
 }
 HTTPClientMsg* HTTPClient::addCntl(HTTPClientMsg* msg) {
