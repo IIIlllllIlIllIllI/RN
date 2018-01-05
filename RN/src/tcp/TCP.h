@@ -38,6 +38,8 @@ private:
     int status=0;
     simtime_t timeout;  // timeout
     cMessage *timeoutEvent;  // holds pointer to the timeout self-message
+    cMessage *curMsg;
+    bool fromUpper=false;
 
 };
 
