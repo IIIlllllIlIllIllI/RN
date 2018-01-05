@@ -27,9 +27,12 @@ Define_Module (HTTPClient);
 
 void HTTPClient::initialize() {
     startEvent = new cMessage("Event");
+
 //    cMessage* closeConnection = new cMessage("close");
     scheduleAt(simTime() + 10, startEvent);
 //    scheduleAt(simTime() + 100, closeConnection);
+    // Generate and send initial message.
+
 }
 
 void HTTPClient::handleMessage(cMessage *msg) {

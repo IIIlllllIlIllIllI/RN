@@ -26,12 +26,23 @@
 Define_Module (HTTPServer);
 
 void HTTPServer::initialize() {
+
 }
 
 void HTTPServer::handleMessage(cMessage *msg) {
-    send(msg, "toTcp");
+    EV << "Server message \n";
+    HTTPClientMsg *clientMsg = check_and_cast<HTTPClientMsg *>(msg);
+    std::string resource = clientMsg->getMethod();
+    doGet(resource);
+
+
+
+//    send(msg, "toTcp");
+
 }
 void HTTPServer::doGet(std::string resource) {
+
+
     EV << resource;
     HTTPServerMsg * resp = new HTTPServerMsg("response");
     if (resource.compare("/test/\r\n") == 0) {
@@ -44,10 +55,22 @@ void HTTPServer::doGet(std::string resource) {
     } else {
         resp->setResponse("Couldnt find file");
     }
-    UDPControlInfo* cntl = new UDPControlInfo();
+//    UDPControlInfo* cntl = new UDPControlInfo();
+//    cntl->setSrcPort(this->srcPort);
+//    cntl->setDestPort(this->destPort);
+//    resp->setControlInfo(cntl);
+//    send(resp, "toLowerLayer");
+    resp = addTCPCntl(resp,0,1,1);
+    send(resp, "toTcp");
+}
+HTTPServerMsg* HTTPServer::addTCPCntl(HTTPServerMsg* msg, int tcpCommand, int tcpStatus, int BitLength) {
+    TCPControlInfo* cntl = new TCPControlInfo();
     cntl->setSrcPort(this->srcPort);
     cntl->setDestPort(this->destPort);
-    resp->setControlInfo(cntl);
-    send(resp, "toLowerLayer");
+    cntl->setTcpCommand(tcpCommand);
+    cntl->setTcpStatus(tcpStatus);
+    msg->setControlInfo(cntl);
+    msg->setBitLength(BitLength);
+    return msg;
 }
 

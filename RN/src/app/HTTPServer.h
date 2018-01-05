@@ -23,21 +23,27 @@
 #include <omnetpp.h>
 #include "../3rdParty/IPv4Address.h"
 #include "../3rdParty/IPv6Address.h"
+#include "HTTPServerMsg_m.h"
 
 using namespace omnetpp;
 
 class HTTPServer : public cSimpleModule
 {
-  protected:
-    virtual void initialize();
-    virtual void doGet(std::string resource);
-    virtual void handleMessage(cMessage *msg);
-    inet::IPv4Address *serverIPv4;
-    inet::IPv4Address *clientIPv4;
-    inet::IPv6Address *serverIPv6;
-    inet::IPv6Address *clientIPv6;
-    int srcPort;
-    int destPort;
+    private:
+        simtime_t timeout;  // timeout
+        cMessage *timeoutEvent;  // holds pointer to the timeout self-message
+        std::string resource;
+    protected:
+        virtual void initialize();
+        virtual void doGet(std::string resource);
+        virtual void handleMessage(cMessage *msg);
+        virtual HTTPServerMsg* addTCPCntl(HTTPServerMsg* msg, int tcpCommand, int tcpStatus, int BitLength);
+        inet::IPv4Address *serverIPv4;
+        inet::IPv4Address *clientIPv4;
+        inet::IPv6Address *serverIPv6;
+        inet::IPv6Address *clientIPv6;
+        int srcPort;
+        int destPort;
 };
 
 #endif

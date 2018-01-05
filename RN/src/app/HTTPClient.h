@@ -31,7 +31,9 @@ class HTTPClient : public cSimpleModule
 {
 private:
     int counter = 0;
-cMessage *startEvent;
+    simtime_t timeout;  // timeout
+    cMessage *timeoutEvent;  // holds pointer to the timeout self-message
+    cMessage *startEvent;
 protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);

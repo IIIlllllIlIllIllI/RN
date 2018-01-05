@@ -36,6 +36,9 @@ private:
     int seqNr = 0;      // sequence number 32 bit
     int ackNr = 0;      // acknowledgement number 32 bit
     int status=0;
+    simtime_t timeout;  // timeout
+    cMessage *timeoutEvent;  // holds pointer to the timeout self-message
+
 };
 
 
