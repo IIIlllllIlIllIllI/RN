@@ -32,7 +32,7 @@ void TCP::initialize() {
     seqNr = 100;
     ackNr = 300;
     timeout = 100;
-
+    timeoutEvent = new cMessage("timeoutEvent");
     // 0 ... closed, 1 ... Syn-sent, 2 ... Syn-received, 3 ... open, 4 ... fin-wait-1, 5 ... fin-wait-2, 6 ... time-wait, 7 close-wait, 8 ... Last-ack
     status = 0;
 }
@@ -45,12 +45,12 @@ void TCP::handleMessage(cMessage *msg) {
         msg = curMsg;
         try {
             //stop old timer
-            cancelAndDelete(timeoutEvent);
+            cancelEvent(timeoutEvent);
         } catch (...) {
 
         }
         //start timer
-        timeoutEvent = new cMessage("timeoutEvent");
+
         scheduleAt(simTime() + timeout, timeoutEvent);
     } else {
         fromUpper = false;
@@ -58,16 +58,17 @@ void TCP::handleMessage(cMessage *msg) {
         curMsg = msg;
         try {
             //stop old timer
-            cancelAndDelete(timeoutEvent);
+            cancelEvent(timeoutEvent);
         } catch (...) {
 
         }
         //start timer
-        timeoutEvent = new cMessage("timeoutEvent");
         scheduleAt(simTime() + timeout, timeoutEvent);
     }
     //simulate packet loss
     if (uniform(0, 10) < 1.0) {
+        EV << "\"Losing\" message.\n";
+                bubble("message lost");  // making animation more informative...
         if (fromUpper || msg->arrivedOn("fromUpperLayer")) {
             fromUpper = true;
         } else {
@@ -227,11 +228,7 @@ void TCP::handleTCPSegment(cPacket *msg) {
     }
 }
 void TCP::send_toup(TCPSegment* tcpsegment) {
-    if (uniform(0, 1) < 0.1) {
-        EV << "\"Losing\" message.\n";
-        bubble("message lost");  // making animation more informative...
-        return;
-    } else {
+
         // 2. create controlinfo and use TCP fields to set values
         TCPControlInfo* cntl = new TCPControlInfo();
         cntl->setDestPort(tcpsegment->getDestPort());
@@ -243,6 +240,6 @@ void TCP::send_toup(TCPSegment* tcpsegment) {
         // 4. attach controlinfo and sent to upper layer
         cp->setControlInfo(cntl);
         send(cp, "toUpperLayer");
-    }
+
 
 }
