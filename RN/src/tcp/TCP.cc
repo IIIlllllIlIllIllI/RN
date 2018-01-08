@@ -66,7 +66,7 @@ void TCP::handleMessage(cMessage *msg) {
         scheduleAt(simTime() + timeout, timeoutEvent);
     }
     //simulate packet loss
-    if (uniform(0, 10) < 1.0) {
+    if (uniform(0, 10) < 0) {
         EV << "\"Losing\" message.\n";
                 bubble("message lost");  // making animation more informative...
         if (fromUpper || msg->arrivedOn("fromUpperLayer")) {
@@ -199,10 +199,12 @@ void TCP::handleTCPSegment(cPacket *msg) {
 
         //wait 2 msl
         //close connection
+        cancelEvent(timeoutEvent);
         status = 0;
         EV << "ClientClosed\n";
     } else if (status == 8 && tcpsegment->getAck()) {
         //close connection
+        cancelEvent(timeoutEvent);
         status = 0;
         EV << "ServerClosed\n";
         delete (tcpsegment);
