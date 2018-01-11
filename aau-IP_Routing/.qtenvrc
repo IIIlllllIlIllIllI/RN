@@ -1,7 +1,7 @@
 [Inspector-0]
 classname=Host
 fullscreen=false
-geom=@Rect(344 88 223 431)
+geom=@Rect(135 43 223 431)
 id=@Variant(\0\0\0\x81\0\0\0\0\0\0\0\x2)
 object=IPNetwork.client1
 type=2
@@ -9,7 +9,7 @@ type=2
 [Inspector-1]
 classname=Host
 fullscreen=false
-geom=@Rect(344 536 226 426)
+geom=@Rect(140 491 226 426)
 id=@Variant(\0\0\0\x81\0\0\0\0\0\0\0\x5)
 object=IPNetwork.server
 type=2

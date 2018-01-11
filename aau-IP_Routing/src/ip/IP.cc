@@ -18,6 +18,7 @@
 // 621.800 (17W) Computer Networks and Network Programming
 
 #include "IP.h"
+#include "../udp/UDPSegment_m.h"
 
 Define_Module(IP);
 
@@ -47,10 +48,18 @@ void IP::handleMessage(cMessage *msg) {
 		// TODO:
 		// * Use IPControlInfo to create IPDatagram
 		// * send to network
+	    UDPSegment *udpsement = check_and_cast<UDPSegment *>(msg);
+	    IPControlInfo *ipinfo = check_and_cast<IPControlInfo *>(udpsement->removeControlInfo());
+	    IPDatagram *ipdatagram = new IPDatagram();
+	    ipdatagram->setSrcIP(info->getSrcIP());
+	    ipdatagram->setDestIP(info->getDestIP());
+	    ipdatagram->encapsulate(seg);
+	    send(ipdatagram, "outLowerLayer", 0);
 	}
 
 	else if (msg->arrivedOn("inLowerLayer")) {
 		//message comes from the network:
+	    IPDatagram *ipdatagram = check_and_cast<IPDatagram *>(msg);
 		if (isRouter == 1) {
 			// This is a router and we have to forward the datagram
 
