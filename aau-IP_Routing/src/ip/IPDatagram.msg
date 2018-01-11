@@ -26,4 +26,6 @@ class noncobject inet::IPv4Address;
 packet IPDatagram
 {
 	// TODO: Add fields here ...
+	IPAddress srcIP;
+	IPAddress destIP;
 }
