@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for RN
+# OMNeT++/OMNEST Makefile for aau-IP_Routing
 #
 # This file was generated with the command:
 #  opp_makemake -f --deep -O out
 #
 
 # Name of target to be created (-o option)
-TARGET = RN$(D)$(EXE_SUFFIX)
+TARGET = aau-IP_Routing$(D)$(EXE_SUFFIX)
 TARGET_DIR = .
 
 # User interface (uncomment one) (-u option)

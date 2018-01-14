@@ -75,7 +75,9 @@ void IP::handleMessage(cMessage *msg) {
             int outputgate = forwardingtable.find(network)->second;
             // * Send the datagram to the appropriate gate.
 
-            send(ipdatagram, this->getParentModule()->gate(outputgate));
+//            send(ipdatagram, this->getParentModule()->gate(outputgate));
+            send(ipdatagram, "outLowerLayer", outputgate);
+
 
         } else {
             // we are a host and not a router, so we have to hand it over to the next higher level.
@@ -84,6 +86,13 @@ void IP::handleMessage(cMessage *msg) {
             // * Create ControlInfo for upper layer ... application layer needs the data.
             // * Decapsulate message
             // * send to upper layer
+            IPControlInfo *ipinfo = new IPControlInfo;
+            cPacket *msg = new cPacket();
+            ipinfo->setDestIP(ipdatagram->getDestIP());
+            ipinfo->setSrcIP(ipdatagram->getSrcIP());
+            msg = ipdatagram->decapsulate();
+            msg->setControlInfo(ipinfo);
+            send(msg, "outUpperLayer", 0);
         }
     }
 
