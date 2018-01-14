@@ -23,61 +23,68 @@
 Define_Module(IP);
 
 void IP::initialize() {
-	// Check if this IP impl is a router or not:
-	isRouter = 0;
-	if (strcmp(string(getParentModule()->getName()).substr(0, 7).c_str(), "router0") == 0) {
-		isRouter = 1;
-		EV << "[Router] " << getParentModule()->getName()
-				<< " is initializing, configuring routing table ...\n";
-		int i = 0;
-		for (i = 0; i < routingTableSize; i++) {
-			if (strcmp((routingtable[i][0]).c_str(),
-					this->getParentModule()->getName()) == 0) {
-				// this is an entry for this router, we add it to our table:
-				forwardingtable[routingtable[i][1]] = atoi(
-						(routingtable[i][4]).c_str());
-				// you'll find the whole forwarding table in IP.h
-			}
-		}
-	}
+    // Check if this IP impl is a router or not:
+    isRouter = 0;
+    if (strcmp(string(getParentModule()->getName()).substr(0, 7).c_str(),
+            "router0") == 0) {
+        isRouter = 1;
+        EV << "[Router] " << getParentModule()->getName()
+                  << " is initializing, configuring routing table ...\n";
+        int i = 0;
+        for (i = 0; i < routingTableSize; i++) {
+            if (strcmp((routingtable[i][0]).c_str(),
+                    this->getParentModule()->getName()) == 0) {
+                // this is an entry for this router, we add it to our table:
+                forwardingtable[routingtable[i][1]] = atoi(
+                        (routingtable[i][4]).c_str());
+                // you'll find the whole forwarding table in IP.h
+            }
+        }
+    }
 }
 
-
 void IP::handleMessage(cMessage *msg) {
-	if (msg->arrivedOn("inUpperLayer")) { //comes from transport layer (instance cannot be a router)
-		// TODO:
-		// * Use IPControlInfo to create IPDatagram
-		// * send to network
-	    UDPSegment *udpsement = check_and_cast<UDPSegment *>(msg);
-	    IPControlInfo *ipinfo = check_and_cast<IPControlInfo *>(udpsement->removeControlInfo());
-	    IPDatagram *ipdatagram = new IPDatagram();
-	    ipdatagram->setSrcIP(info->getSrcIP());
-	    ipdatagram->setDestIP(info->getDestIP());
-	    ipdatagram->encapsulate(seg);
-	    send(ipdatagram, "outLowerLayer", 0);
-	}
+    if (msg->arrivedOn("inUpperLayer")) { //comes from transport layer (instance cannot be a router)
+        // TODO:
+        // * Use IPControlInfo to create IPDatagram
+        // * send to network
+        UDPSegment *udpsement = check_and_cast<UDPSegment *>(msg);
+        IPControlInfo *ipinfo = check_and_cast<IPControlInfo *>(
+                udpsement->removeControlInfo());
+        IPDatagram *ipdatagram = new IPDatagram();
+        ipdatagram->setSrcIP(ipinfo->getSrcIP());
+        ipdatagram->setDestIP(ipinfo->getDestIP());
+        ipdatagram->encapsulate(udpsement);
+        delete ipinfo;
+        send(ipdatagram, "outLowerLayer", 0);
+    }
 
-	else if (msg->arrivedOn("inLowerLayer")) {
-		//message comes from the network:
-	    IPDatagram *ipdatagram = check_and_cast<IPDatagram *>(msg);
-		if (isRouter == 1) {
-			// This is a router and we have to forward the datagram
+    else if (msg->arrivedOn("inLowerLayer")) {
+        //message comes from the network:
+        IPDatagram *ipdatagram = check_and_cast<IPDatagram *>(msg);
+        if (isRouter == 1) {
+            // This is a router and we have to forward the datagram
 
-			// TODO:
-			// * Find out the destination network
-			//   (IP address which ends with '.0', use IPAddress->getNetwork().str())
-			// * Find out which gate is the right one
-			//   use the forwarding table 'forwardingtable' initialized above
-			// * Send the datagram to the appropriate gate.
+            // TODO:
+            // * Find out the destination network
+            //   (IP address which ends with '.0', use IPAddress->getNetwork().str())
+            string network = ipdatagram->getDestIP().getNetwork().str();
+            bubble(network.c_str());
+            // * Find out which gate is the right one
+            //   use the forwarding table 'forwardingtable' initialized above
+            int outputgate = forwardingtable.find(network)->second;
+            // * Send the datagram to the appropriate gate.
 
-		} else {
-			// we are a host and not a router, so we have to hand it over to the next higher level.
+            send(ipdatagram, this->getParentModule()->gate(outputgate));
 
-			// TODO
-			// * Create ControlInfo for upper layer ... application layer needs the data.
-			// * Decapsulate message
-			// * send to upper layer
-		}
-	}
+        } else {
+            // we are a host and not a router, so we have to hand it over to the next higher level.
+
+            // TODO
+            // * Create ControlInfo for upper layer ... application layer needs the data.
+            // * Decapsulate message
+            // * send to upper layer
+        }
+    }
 
 }
