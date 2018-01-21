@@ -1,0 +1,5 @@
+# Partial OMNeT++/Tkenv config file -- see $HOME/.tkenvrc as well
+config default-configname	{}
+config default-runnumber	{}
+inspector simulation.scheduled-events.client1 CSMAFrame 229 1 464x365+917+322:normal
+
