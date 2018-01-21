@@ -97,8 +97,22 @@ void CSMA::handleMessageForMe(CSMAFrame *frame)
 {
     switch (frame->getType()) {
         case RTS: {
-            // TODO
-
+            if (this->getParentModule()->getName() == "accessPointServer") {
+                if(colTimeout==null){
+                    //start new colTimeout
+                    colTimeout=new cMessage("CollisionTimeout");
+                    scheduleAt(simTime()+this->SIFS, colTimeout);
+                    //set detected collisions to zero
+                    numOfCollisons=0;
+                }
+                else{
+                    //found collision
+                    numOfCollisons++;
+                }
+            }
+            //TODO
+            //add to msg queue
+            delete frame;
             break;
         }
         case CTS: {
@@ -126,12 +140,13 @@ void CSMA::handleMessageForOthers(CSMAFrame *frame)
 {
     switch (frame->getType()) {
         case RTS: {
-            // TODO
-
+            //drop frame
+            delete frame;
             break;
         }
         case CTS: {
             // TODO
+            //restart backoffTimeout
 
             break;
         }
@@ -140,7 +155,8 @@ void CSMA::handleMessageForOthers(CSMAFrame *frame)
             break;
         }
         case ACK: {
-            // TODO?
+            //drop frame
+            delete frame;
             break;
         }
         default:

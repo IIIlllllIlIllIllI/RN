@@ -33,6 +33,7 @@ protected:
     double SIFS;
     double transmitDuration;
     int numOfConcurrentMsgs;
+    int numOfCollisons;
     MACAddress *srcMAC;
     MACAddress *destMAC;
     std::list <CSMAFrame*> msgBuffer;
