@@ -96,12 +96,14 @@ void CSMA::handleSelfMessage(cMessage *msg) {
 }
 
 void CSMA::handleUpperLayerMessage(cMessage *msg) {
-    // TODO
-    CSMAFrame *csmaframe = new CSMAFrame("CSMAF");
+    CSMAFrame *csmaframe = new CSMAFrame("RTS");
     CSMAControlInfo *CSMAInfo = check_and_cast<CSMAControlInfo *>(
             msg->removeControlInfo());
     csmaframe->setSrc(CSMAInfo->getSrc());
     csmaframe->setDest(CSMAInfo->getDest());
+    csmaframe->setType(RTS);
+    //csmaframe->encapsulate(msg);
+    csmaframe->setResDuration(this->transmitDuration);
     sendToAllReachableDevices(csmaframe);
 
 }
@@ -173,6 +175,14 @@ void CSMA::handleMessageForOthers(CSMAFrame *frame) {
         break;
     }
     case CTS: {
+        if (rtsTimeout != NULL) {
+            cancelAndDelete(rtsTimeout);
+            rtsTimeout = NULL;
+        }
+        if (colTimeout != NULL) {
+            cancelAndDelete(colTimeout);
+            colTimeout = NULL;
+        }
         //restart backoffTimeout
         if (backoffTimeout != NULL) {
             cancelAndDelete(backoffTimeout);
