@@ -102,8 +102,11 @@ void CSMA::handleUpperLayerMessage(cMessage *msg) {
     csmaframe->setSrc(CSMAInfo->getSrc());
     csmaframe->setDest(CSMAInfo->getDest());
     csmaframe->setType(RTS);
-    //csmaframe->encapsulate(msg);
+    csmaframe->encapsulate((cPacket*) msg);
     csmaframe->setResDuration(this->transmitDuration);
+    //start rtsTimeout
+    rtsTimeout=new cMessage("rtsTimeout");
+    scheduleAt(simTime() + this->DIFS , rtsTimeout);
     sendToAllReachableDevices(csmaframe);
 
 }
@@ -129,6 +132,7 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
                 == 0) {
             if (colTimeout == NULL) {
                 //start new colTimeout
+                EV<<"Starting colTimeout\n";
                 colTimeout = new cMessage("CollisionTimeout");
                 scheduleAt(simTime() + this->SIFS, colTimeout);
                 //set number of concurrent Messages to one
