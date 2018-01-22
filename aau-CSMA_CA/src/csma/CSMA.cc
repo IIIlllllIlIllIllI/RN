@@ -84,6 +84,7 @@ void CSMA::handleSelfMessage(cMessage *msg) {
             ctsFrame->setType(CTS);
             ctsFrame->setSrc(*this->srcMAC);
             ctsFrame->setDest(*this->destMAC);
+            ctsFrame->setResDuration(this->transmitDuration);
             sendToAllReachableDevices(ctsFrame);
 
         }
@@ -135,9 +136,8 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
                 numOfConcurrentMsgs++;
             }
         }
-        //TODO
         //add to msg queue
-        delete frame;
+        msgBuffer.push_back(frame);
         break;
     }
     case CTS: {
@@ -145,13 +145,13 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
             cancelAndDelete(rtsTimeout);
             rtsTimeout = NULL;
         }
-        //TODO
         //send data
+        sendToAllReachableDevices(msgBuffer.front());
+        msgBuffer.pop_front();
         break;
     }
     case DATA: {
         // TODO
-
         break;
     }
     case ACK: {
