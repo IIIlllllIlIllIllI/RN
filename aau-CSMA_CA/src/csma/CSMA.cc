@@ -86,6 +86,7 @@ void CSMA::handleSelfMessage(cMessage *msg) {
             ctsFrame->setSrc(*this->srcMAC);
             ctsFrame->setDest(*this->destMAC);
             ctsFrame->setResDuration(this->transmitDuration);
+            EV<<"Sending CTS to "+ (*this->destMAC).str()+"\n";
             sendToAllReachableDevices(ctsFrame);
 
         }
@@ -140,6 +141,7 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
                 scheduleAt(simTime() + this->SIFS, colTimeout);
                 //set number of concurrent Messages to one
                 numOfConcurrentMsgs = 1;
+                this->destMAC=&frame->getSrc();
             } else {
                 //found collision
                 numOfConcurrentMsgs++;
@@ -155,7 +157,6 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
         }
         //send data
         CSMAFrame *dataframe = msgBuffer.front();
-
         dataframe->setType(DATA);
         dataframe->setName("DATA");
         EV<<"Sending DATA\n";
@@ -165,9 +166,10 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
     }
     case DATA: {
         CSMAFrame *ackframe = new CSMAFrame("ACK");
-        ackframe->setSrc(frame->getSrc());
-        ackframe->setDest(frame->getDest());
+        ackframe->setSrc(frame->getDest());
+        ackframe->setDest(frame->getSrc());
         ackframe->setType(ACK);
+        sendToAllReachableDevices(ackframe);
         delete frame;
         break;
     }
