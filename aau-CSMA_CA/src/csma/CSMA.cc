@@ -158,6 +158,7 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
 
         dataframe->setType(DATA);
         dataframe->setName("DATA");
+        EV<<"Sending DATA\n";
         sendToAllReachableDevices(dataframe);
 
         break;
@@ -207,7 +208,8 @@ void CSMA::handleMessageForOthers(CSMAFrame *frame) {
         break;
     }
     case DATA: {
-        // TODO?
+        //drop frame
+        delete frame;
         break;
     }
     case ACK: {
