@@ -61,7 +61,10 @@ void CSMA::handleSelfMessage(cMessage *msg) {
             EV << "ERROR\n";
         } else {
             backoffTimeout = new cMessage("backoffTimeout");
-            scheduleAt(simTime() + min(this->SIFS * uniform(0, maxBackoff),maxBackoff), backoffTimeout);
+            scheduleAt(
+                    simTime()
+                            + min(this->SIFS * uniform(0, maxBackoff),
+                                    maxBackoff), backoffTimeout);
         }
         // Reset handled timeout
         delete msg;
@@ -76,7 +79,6 @@ void CSMA::handleSelfMessage(cMessage *msg) {
         if (numOfConcurrentMsgs > 1) {
             //collision detected
 
-
             numOfConcurrentMsgs = 0;
 
         } else {
@@ -86,7 +88,7 @@ void CSMA::handleSelfMessage(cMessage *msg) {
             ctsFrame->setSrc(*this->srcMAC);
             ctsFrame->setDest(*this->destMAC);
             ctsFrame->setResDuration(this->transmitDuration);
-            EV<<"Sending CTS to "+ (*this->destMAC).str()+"\n";
+            EV << "Sending CTS to " + (*this->destMAC).str() + "\n";
             sendToAllReachableDevices(ctsFrame);
 
         }
@@ -107,8 +109,8 @@ void CSMA::handleUpperLayerMessage(cMessage *msg) {
     csmaframe->encapsulate((cPacket*) msg);
     csmaframe->setResDuration(this->transmitDuration);
     //start rtsTimeout
-    rtsTimeout=new cMessage("rtsTimeout");
-    scheduleAt(simTime() + this->DIFS , rtsTimeout);
+    rtsTimeout = new cMessage("rtsTimeout");
+    scheduleAt(simTime() + this->DIFS, rtsTimeout);
     //add to msg queue
     msgBuffer.push_back(csmaframe);
     sendToAllReachableDevices(csmaframe);
@@ -136,12 +138,12 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
                 == 0) {
             if (colTimeout == NULL) {
                 //start new colTimeout
-                EV<<"Starting colTimeout\n";
+                EV << "Starting colTimeout\n";
                 colTimeout = new cMessage("CollisionTimeout");
                 scheduleAt(simTime() + this->SIFS, colTimeout);
                 //set number of concurrent Messages to one
                 numOfConcurrentMsgs = 1;
-                this->destMAC=&frame->getSrc();
+                this->destMAC = &frame->getSrc();
             } else {
                 //found collision
                 numOfConcurrentMsgs++;
@@ -159,7 +161,7 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
         CSMAFrame *dataframe = msgBuffer.front();
         dataframe->setType(DATA);
         dataframe->setName("DATA");
-        EV<<"Sending DATA\n";
+        EV << "Sending DATA\n";
         sendToAllReachableDevices(dataframe);
 
         break;
@@ -174,6 +176,7 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
         break;
     }
     case ACK: {
+        EV << "ACK received\n";
         msgBuffer.pop_front();
         delete frame;
         break;
@@ -204,8 +207,10 @@ void CSMA::handleMessageForOthers(CSMAFrame *frame) {
         if (backoffTimeout != NULL) {
             cancelAndDelete(backoffTimeout);
         }
-        backoffTimeout = new cMessage("backoffTimeout");
-        scheduleAt(simTime() + frame->getResDuration(), backoffTimeout);
+        if (msgBuffer.empty() == false) {
+            backoffTimeout = new cMessage("backoffTimeout");
+            scheduleAt(simTime() + frame->getResDuration(), backoffTimeout);
+        }
         delete frame;
         break;
     }
