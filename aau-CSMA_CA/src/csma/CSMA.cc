@@ -61,7 +61,7 @@ void CSMA::handleSelfMessage(cMessage *msg) {
             EV << "ERROR\n";
         } else {
             backoffTimeout = new cMessage("backoffTimeout");
-            scheduleAt(simTime() + this->SIFS * uniform(0, 1), backoffTimeout);
+            scheduleAt(simTime() + min(this->SIFS * uniform(0, maxBackoff),maxBackoff), backoffTimeout);
         }
         // Reset handled timeout
         delete msg;
@@ -75,6 +75,7 @@ void CSMA::handleSelfMessage(cMessage *msg) {
 
         if (numOfConcurrentMsgs > 1) {
             //collision detected
+
 
             numOfConcurrentMsgs = 0;
 
@@ -107,6 +108,8 @@ void CSMA::handleUpperLayerMessage(cMessage *msg) {
     //start rtsTimeout
     rtsTimeout=new cMessage("rtsTimeout");
     scheduleAt(simTime() + this->DIFS , rtsTimeout);
+    //add to msg queue
+    msgBuffer.push_back(csmaframe);
     sendToAllReachableDevices(csmaframe);
 
 }
@@ -142,8 +145,7 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
                 numOfConcurrentMsgs++;
             }
         }
-        //add to msg queue
-        msgBuffer.push_back(frame);
+
         break;
     }
     case CTS: {
@@ -152,17 +154,25 @@ void CSMA::handleMessageForMe(CSMAFrame *frame) {
             rtsTimeout = NULL;
         }
         //send data
-        sendToAllReachableDevices(msgBuffer.front());
-        msgBuffer.pop_front();
+        CSMAFrame *dataframe = msgBuffer.front();
+
+        dataframe->setType(DATA);
+        dataframe->setName("DATA");
+        sendToAllReachableDevices(dataframe);
+
         break;
     }
     case DATA: {
-        // TODO
+        CSMAFrame *ackframe = new CSMAFrame("ACK");
+        ackframe->setSrc(frame->getSrc());
+        ackframe->setDest(frame->getDest());
+        ackframe->setType(ACK);
+        delete frame;
         break;
     }
     case ACK: {
-        // TODO
-
+        msgBuffer.pop_front();
+        delete frame;
         break;
     }
     default:
