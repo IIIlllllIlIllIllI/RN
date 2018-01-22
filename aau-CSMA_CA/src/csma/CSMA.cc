@@ -39,13 +39,31 @@ void CSMA::handleSelfMessage(cMessage *msg){
     if (msg == backoffTimeout) {
         // TODO:
         // Retransmit RTS after backoff.
+        CSMAFrame* rtsFrame=new CSMAFrame("RTS");
+        rtsFrame->setType(RTS);
+        rtsFrame->setSrc(*this->srcMAC);
+        rtsFrame->setDest(*this->destMAC);
+        sendToAllReachableDevices(rtsFrame);
         // Schedule another timeout for expected response to RTS.
+        if(rtsTimeout!=NULL){
+            EV<<"ERROR\n";
+        }else{
+            rtsTimeout=new cMessage("rtsTimeout");
+            scheduleAt(simTime()+this->DIFS, rtsTimeout);
+        }
+
         // Reset handled timeout
         scheduleAt(simTime()+this->SIFS*uniform(0, 1), msg);
 
     } else if (msg == rtsTimeout) {
         // TODO:
         // Create random backoff before trying to re-send an RTS.
+        if(backoffTimeout!=NULL){
+            EV<<"ERROR\n";
+        }else{
+            backoffTimeout=new cMessage("backoffTimeout");
+            scheduleAt(simTime()+this->SIFS*uniform(0, 1),backoffTimeout);
+        }
         // Reset handled timeout
         scheduleAt(simTime()+this->DIFS, msg);
 
@@ -55,12 +73,19 @@ void CSMA::handleSelfMessage(cMessage *msg){
         // If so, it's a collision -> Delete messages and reset counter.
         // Reset handled timeout
 
-        if (numOfConcurrentMsgs == 0) {
-            numOfConcurrentMsgs++;
+        if (numOfConcurrentMsgs > 1) {
+            //collision detected
+
+            //reset timeout
             scheduleAt(simTime()+this->SIFS, msg);
         }else{
+            //send CTS
+            CSMAFrame* ctsFrame=new CSMAFrame("CTS");
+            ctsFrame->setType(CTS);
+            ctsFrame->setSrc(*this->srcMAC);
+            ctsFrame->setDest(*this->destMAC);
+            sendToAllReachableDevices(ctsFrame);
             delete(msg);
-            scheduleAt(simTime()+this->SIFS, msg);
         }
 
 
@@ -97,17 +122,17 @@ void CSMA::handleMessageForMe(CSMAFrame *frame)
 {
     switch (frame->getType()) {
         case RTS: {
-            if (this->getParentModule()->getName() == "accessPointServer") {
-                if(colTimeout==null){
+            if (strcmp(this->getParentModule()->getName() ,"accessPointServer")==0) {
+                if(colTimeout==NULL){
                     //start new colTimeout
                     colTimeout=new cMessage("CollisionTimeout");
                     scheduleAt(simTime()+this->SIFS, colTimeout);
-                    //set detected collisions to zero
-                    numOfCollisons=0;
+                    //set number of concurrent Messages to one
+                    numOfConcurrentMsgs=1;
                 }
                 else{
                     //found collision
-                    numOfCollisons++;
+                    numOfConcurrentMsgs++;
                 }
             }
             //TODO
@@ -116,8 +141,12 @@ void CSMA::handleMessageForMe(CSMAFrame *frame)
             break;
         }
         case CTS: {
-            // TODO
-
+            if(rtsTimeout!=NULL){
+                cancelAndDelete(rtsTimeout);
+                rtsTimeout=NULL;
+            }
+            //TODO
+            //send data
             break;
         }
         case DATA: {
@@ -145,9 +174,13 @@ void CSMA::handleMessageForOthers(CSMAFrame *frame)
             break;
         }
         case CTS: {
-            // TODO
             //restart backoffTimeout
-
+            if(backoffTimeout!=NULL){
+                cancelAndDelete(backoffTimeout);
+            }
+            backoffTimeout=new cMessage("backoffTimeout");
+            scheduleAt(simTime()+frame->getResDuration(),backoffTimeout);
+            delete frame;
             break;
         }
         case DATA: {
